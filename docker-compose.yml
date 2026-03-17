@@ -12,7 +12,7 @@ services:
     networks:
       - traefik
     labels:
-      - traefik.http.routers.content-website.rule=Host(`jake.runyan.dev`)
+      - traefik.http.routers.content-website.rule=Host(`jake2.runyan.dev`)
       - traefik.http.routers.content-website.tls=true
       - traefik.http.routers.content-website.tls.certresolver=lets-encrypt
       - traefik.http.services.content-website.loadbalancer.server.port=80
