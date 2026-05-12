@@ -1,1 +1,0 @@
-Here are some of my friends' websites. Join the smallweb!

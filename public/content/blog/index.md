@@ -1,1 +1,0 @@
-Enjoy some of my ramblings as I put my thoughts into words.
