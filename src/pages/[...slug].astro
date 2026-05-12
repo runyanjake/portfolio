@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from 'astro:content';
+import {
+  buildUrlMap,
+  directChildren,
+  descendants,
+  isIndex,
+  sortChildren,
+  urlToSlugParam,
+} from '../lib/routing';
+import PageLayout from '../layouts/PageLayout.astro';
+import IndexLayout from '../layouts/IndexLayout.astro';
+
+export async function getStaticPaths() {
+  const all = await getCollection('pages', (e) => !e.data.draft);
+  const urlMap = buildUrlMap(all);
+  return all.map((entry) => {
+    const url = urlMap.get(entry.id)!;
+    return {
+      params: { slug: urlToSlugParam(url) },
+      props: { entryId: entry.id },
+    };
+  });
+}
+
+interface Props {
+  entryId: string;
+}
+
+const { entryId } = Astro.props;
+
+const all = await getCollection('pages', (e) => !e.data.draft);
+const urlMap = buildUrlMap(all);
+const entry = all.find((e) => e.id === entryId)!;
+const url = urlMap.get(entry.id)!;
+const { Content, headings } = await render(entry);
+const indexEntry = isIndex(entry);
+
+const childEntries = indexEntry
+  ? sortChildren(
+      (entry.data.recursive ? descendants : directChildren)(url, urlMap, all),
+      entry.data.sort,
+    )
+  : [];
+
+const childItems = childEntries.map((c) => ({
+  url: urlMap.get(c.id)!,
+  data: c.data,
+}));
+---
+
+{indexEntry ? (
+  <IndexLayout entry={entry} url={url} items={childItems}>
+    <Content />
+  </IndexLayout>
+) : (
+  <PageLayout entry={entry} url={url} headings={headings}>
+    <Content />
+  </PageLayout>
+)}

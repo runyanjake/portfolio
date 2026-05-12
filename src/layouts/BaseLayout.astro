@@ -1,0 +1,40 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import { loadSiteConfig } from '../lib/site';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const site = loadSiteConfig();
+const { title, description } = Astro.props;
+const pageTitle = title ? `${title} — ${site.title}` : site.title;
+const themeHref = `/themes/${site.theme}.css`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="stylesheet" href={themeHref} />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <ClientRouter />
+  </head>
+  <body>
+    <SiteHeader />
+    <main class="site-main">
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

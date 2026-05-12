@@ -1,0 +1,13 @@
+---
+import { loadSiteConfig } from '../lib/site';
+
+const site = loadSiteConfig();
+const year = new Date().getFullYear();
+const footerText = site.footer ?? `© ${year} ${site.title}`;
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <p>{footerText}</p>
+  </div>
+</footer>

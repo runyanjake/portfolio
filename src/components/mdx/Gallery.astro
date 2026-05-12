@@ -1,0 +1,25 @@
+---
+import { Image } from 'astro:assets';
+
+interface ImageEntry {
+  src: ImageMetadata;
+  alt?: string;
+}
+
+interface Props {
+  images: ImageEntry[];
+}
+
+const { images } = Astro.props;
+---
+
+<div class="gallery">
+  {images.map((img) => (
+    <Image
+      src={img.src}
+      alt={img.alt ?? ''}
+      widths={[240, 360, 480]}
+      sizes="(min-width: 720px) 240px, 50vw"
+    />
+  ))}
+</div>

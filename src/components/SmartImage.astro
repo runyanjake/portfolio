@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+
+type ImageRef = ImageMetadata | string;
+
+interface Props {
+  src: ImageRef;
+  alt: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+  loading?: 'eager' | 'lazy';
+}
+
+const {
+  src,
+  alt,
+  class: className,
+  widths = [320, 480, 640, 960],
+  sizes,
+  loading = 'lazy',
+} = Astro.props;
+
+const isLocal = typeof src !== 'string';
+---
+
+{isLocal ? (
+  <Image
+    src={src as ImageMetadata}
+    alt={alt}
+    class={className}
+    widths={widths}
+    sizes={sizes}
+    loading={loading}
+  />
+) : (
+  <img
+    src={src as string}
+    alt={alt}
+    class={className}
+    loading={loading}
+    decoding="async"
+  />
+)}

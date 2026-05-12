@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf src styles index.html vite.config.js eslint.config.js public/vite.svg node_modules package-lock.json)",
+      "Bash(npm install *)",
+      "Bash(npx astro *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" http://localhost:4321/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" http://localhost:4321/blog)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" http://localhost:4321/blog/flux-1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" http://localhost:4321/about/jake)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{url_effective}\\\\n\" http://localhost:4321/themes/default.css)",
+      "Bash(pkill -f \"astro preview\")",
+      "Bash(docker compose *)",
+      "Bash(mv 2024-02-13-llm-pipeline-with-rivet-and-lmstudio llm-pipeline-with-rivet-and-lmstudio)",
+      "Bash(mv 2024-02-15-sdxl-pipeline-with-comfyui sdxl-pipeline-with-comfyui)",
+      "Bash(mv 2024-08-16-flux-1 flux-1)",
+      "Bash(mv 2024-12-30-copilot-with-ollama copilot-with-ollama)",
+      "Bash(mv 2025-01-22-pure-rl-with-deepseek pure-rl-with-deepseek)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\runya\\Documents\\repositories\\portfolio\\src"
+    ]
+  }
+}

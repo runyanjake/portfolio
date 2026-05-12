@@ -1,0 +1,36 @@
+---
+import SmartImage from '../SmartImage.astro';
+import type { IndexItem } from '../../layouts/IndexLayout.astro';
+
+interface Props {
+  items: IndexItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="display-cards">
+  {items.map((item) => {
+    const img = item.data.cover ?? item.data.image;
+    return (
+      <li class="display-cards__item">
+        <a href={item.url} class="display-cards__link">
+          {img && (
+            <div class="display-cards__media">
+              <SmartImage
+                src={img}
+                alt=""
+                widths={[320, 480, 640]}
+                sizes="(min-width: 720px) 320px, 100vw"
+              />
+            </div>
+          )}
+          <div class="display-cards__body">
+            <h2 class="display-cards__title">{item.data.title}</h2>
+            {item.data.excerpt && <p class="display-cards__excerpt">{item.data.excerpt}</p>}
+          </div>
+        </a>
+      </li>
+    );
+  })}
+</ul>

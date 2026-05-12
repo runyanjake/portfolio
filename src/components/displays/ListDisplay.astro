@@ -1,0 +1,30 @@
+---
+import type { IndexItem } from '../../layouts/IndexLayout.astro';
+
+interface Props {
+  items: IndexItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="display-list">
+  {items.map((item) => (
+    <li class="display-list__item">
+      <a href={item.url} class="display-list__link">
+        <h2 class="display-list__title">{item.data.title}</h2>
+        {item.data.date && (
+          <time class="display-list__date" datetime={item.data.date.toISOString()}>
+            {item.data.date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              timeZone: 'UTC',
+            })}
+          </time>
+        )}
+        {item.data.excerpt && <p class="display-list__excerpt">{item.data.excerpt}</p>}
+      </a>
+    </li>
+  ))}
+</ul>

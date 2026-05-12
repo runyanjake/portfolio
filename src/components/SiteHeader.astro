@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import { loadSiteConfig } from '../lib/site';
+import { buildUrlMap } from '../lib/routing';
+
+const site = loadSiteConfig();
+
+let navItems = site.nav.map((n) => ({ label: n.label, href: n.href }));
+
+if (site.autoNav && navItems.length === 0) {
+  const all = await getCollection('pages', (e) => !e.data.draft && !e.data.hidden);
+  const urlMap = buildUrlMap(all);
+  const topLevel = all
+    .map((e) => ({ entry: e, url: urlMap.get(e.id)! }))
+    .filter(({ url }) => {
+      if (url === '/') return false;
+      const segs = url.split('/').filter(Boolean);
+      return segs.length === 1;
+    })
+    .sort((a, b) => {
+      const oa = a.entry.data.navOrder ?? Number.POSITIVE_INFINITY;
+      const ob = b.entry.data.navOrder ?? Number.POSITIVE_INFINITY;
+      if (oa !== ob) return oa - ob;
+      return a.entry.data.title.localeCompare(b.entry.data.title);
+    });
+  navItems = topLevel.map(({ entry, url }) => ({
+    label: entry.data.navLabel ?? entry.data.title,
+    href: url,
+  }));
+}
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a href="/" class="site-header__brand">{site.title}</a>
+    <nav class="site-header__nav" aria-label="Primary">
+      <ul>
+        {navItems.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>

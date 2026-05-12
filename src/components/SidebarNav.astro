@@ -1,0 +1,44 @@
+---
+import type { IndexItem } from '../layouts/IndexLayout.astro';
+
+interface Props {
+  items: IndexItem[];
+  currentUrl?: string;
+}
+
+const { items, currentUrl } = Astro.props;
+
+function group(items: IndexItem[]): { name: string | null; items: IndexItem[] }[] {
+  const groups = new Map<string | null, IndexItem[]>();
+  for (const item of items) {
+    const segs = item.url.split('/').filter(Boolean);
+    const groupKey = segs.length >= 3 ? segs[segs.length - 2] : null;
+    if (!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey)!.push(item);
+  }
+  return [...groups.entries()].map(([name, items]) => ({ name, items }));
+}
+
+const grouped = group(items);
+---
+
+<nav class="sidebar-nav" aria-label="Section">
+  {grouped.map((g) => (
+    <div class="sidebar-nav__group">
+      {g.name && <p class="sidebar-nav__group-name">{g.name}</p>}
+      <ul class="sidebar-nav__list">
+        {g.items.map((item) => (
+          <li>
+            <a
+              href={item.url}
+              class={`sidebar-nav__link${item.url === currentUrl ? ' sidebar-nav__link--active' : ''}`}
+              aria-current={item.url === currentUrl ? 'page' : undefined}
+            >
+              {item.data.title}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</nav>

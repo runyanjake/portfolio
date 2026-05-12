@@ -1,0 +1,104 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { MarkdownHeading } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import SidebarNav from '../components/SidebarNav.astro';
+import SmartImage from '../components/SmartImage.astro';
+import {
+  buildUrlMap,
+  descendants,
+  directChildren,
+  findSidebarRoot,
+  sortChildren,
+} from '../lib/routing';
+
+interface Props {
+  entry: CollectionEntry<'pages'>;
+  url: string;
+  headings: MarkdownHeading[];
+}
+
+const { entry, url, headings } = Astro.props;
+const { title, date, author, cover, excerpt, tags } = entry.data;
+
+const all = await getCollection('pages', (e) => !e.data.draft);
+const urlMap = buildUrlMap(all);
+const sidebarRoot = findSidebarRoot(url, urlMap, all);
+
+let sidebarItems: { url: string; data: CollectionEntry<'pages'>['data'] }[] = [];
+if (sidebarRoot) {
+  const items = sortChildren(
+    (sidebarRoot.entry.data.recursive ? descendants : directChildren)(
+      sidebarRoot.url,
+      urlMap,
+      all,
+    ),
+    sidebarRoot.entry.data.sort,
+  );
+  sidebarItems = items.map((c) => ({ url: urlMap.get(c.id)!, data: c.data }));
+}
+
+const formattedDate = date
+  ? date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    })
+  : null;
+const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3;
+---
+
+<BaseLayout title={title} description={excerpt}>
+  <article class={sidebarRoot ? 'page page--with-sidebar' : 'page'}>
+    {sidebarRoot && (
+      <aside class="page__sidebar" aria-label="Section navigation">
+        <p class="page__sidebar-title">
+          <a href={sidebarRoot.url}>{sidebarRoot.entry.data.title}</a>
+        </p>
+        <SidebarNav items={sidebarItems} currentUrl={url} />
+      </aside>
+    )}
+
+    <div class="page__content">
+      <header class="page__header">
+        <h1 class="page__title">{title}</h1>
+        {(formattedDate || author) && (
+          <p class="page__meta">
+            {formattedDate && <time datetime={date!.toISOString()}>{formattedDate}</time>}
+            {formattedDate && author && <span class="page__meta-sep"> · </span>}
+            {author && <span>{author}</span>}
+          </p>
+        )}
+        {tags.length > 0 && (
+          <ul class="page__tags">
+            {tags.map((t) => <li>{t}</li>)}
+          </ul>
+        )}
+        {cover && (
+          <SmartImage src={cover} alt="" class="page__cover" loading="eager" widths={[640, 960, 1280]} />
+        )}
+      </header>
+
+      {showToc && (
+        <nav class="page__toc" aria-label="Table of contents">
+          <p class="page__toc-title">On this page</p>
+          <ul>
+            {headings
+              .filter((h) => h.depth >= 2 && h.depth <= 3)
+              .map((h) => (
+                <li class={`page__toc-item page__toc-item--depth-${h.depth}`}>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+          </ul>
+        </nav>
+      )}
+
+      <div class="page__body">
+        <slot />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

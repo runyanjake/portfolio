@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import ListDisplay from '../components/displays/ListDisplay.astro';
+import CardsDisplay from '../components/displays/CardsDisplay.astro';
+import GridDisplay from '../components/displays/GridDisplay.astro';
+import GalleryDisplay from '../components/displays/GalleryDisplay.astro';
+import SidebarDisplay from '../components/displays/SidebarDisplay.astro';
+
+export type IndexItem = {
+  url: string;
+  data: CollectionEntry<'pages'>['data'];
+};
+
+interface Props {
+  entry: CollectionEntry<'pages'>;
+  url: string;
+  items: IndexItem[];
+}
+
+const { entry, items } = Astro.props;
+const display = entry.data.display ?? 'list';
+---
+
+<BaseLayout title={entry.data.title} description={entry.data.excerpt}>
+  <section class="index">
+    <header class="index__header">
+      <h1 class="index__title">{entry.data.title}</h1>
+    </header>
+
+    {Astro.slots.has('default') && (
+      <div class="index__intro">
+        <slot />
+      </div>
+    )}
+
+    {items.length === 0 ? (
+      <p class="index__empty">No entries here yet.</p>
+    ) : display === 'cards' ? (
+      <CardsDisplay items={items} />
+    ) : display === 'grid' ? (
+      <GridDisplay items={items} />
+    ) : display === 'gallery' ? (
+      <GalleryDisplay items={items} />
+    ) : display === 'sidebar' ? (
+      <SidebarDisplay items={items} currentUrl={Astro.props.url} />
+    ) : (
+      <ListDisplay items={items} />
+    )}
+  </section>
+</BaseLayout>

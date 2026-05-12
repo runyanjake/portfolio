@@ -1,0 +1,19 @@
+networks:
+  traefik:
+    external: true
+
+services:
+  web:
+    container_name: jake-website
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - traefik.http.routers.content-website.rule=Host(`jake2.runyan.dev`)
+      - traefik.http.routers.content-website.tls=true
+      - traefik.http.routers.content-website.tls.certresolver=lets-encrypt
+      - traefik.http.services.content-website.loadbalancer.server.port=80
+      - traefik.port=80
