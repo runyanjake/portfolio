@@ -50,10 +50,12 @@ pipeline {
         stage('Lint & Type-check') {
             steps {
                 // Runs inside a throwaway container so the agent needs no Node toolchain.
+                // --mount (over -v) is used so paths containing spaces or colons
+                // survive shell word-splitting inside Jenkins' sh step.
                 sh '''
                     set -euo pipefail
                     docker run --rm \
-                        -v "${WORKSPACE}":/app \
+                        --mount "type=bind,source=${WORKSPACE},target=/app" \
                         -w /app \
                         "${NODE_IMAGE}" \
                         sh -c "npm ci --no-audit --no-fund && npm run check" \

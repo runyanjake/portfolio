@@ -11,6 +11,20 @@ import {
 import PageLayout from '../layouts/PageLayout.astro';
 import IndexLayout from '../layouts/IndexLayout.astro';
 
+// Auto-register any component in src/components/mdx/ as an MDX component.
+// Component name = filename stem (PascalCase preserved). Drop
+// src/components/mdx/Foo.astro to make <Foo /> usable in any .mdx file
+// without an explicit import.
+const mdxModules = import.meta.glob<{ default: any }>(
+  '../components/mdx/*.astro',
+  { eager: true },
+);
+const mdxComponents: Record<string, any> = {};
+for (const [path, mod] of Object.entries(mdxModules)) {
+  const name = path.split('/').pop()!.replace(/\.astro$/, '');
+  mdxComponents[name] = mod.default;
+}
+
 export async function getStaticPaths() {
   const all = await getCollection('pages', (e) => !e.data.draft);
   const urlMap = buildUrlMap(all);
@@ -51,10 +65,10 @@ const childItems = childEntries.map((c) => ({
 
 {indexEntry ? (
   <IndexLayout entry={entry} url={url} items={childItems}>
-    <Content />
+    <Content components={mdxComponents} />
   </IndexLayout>
 ) : (
   <PageLayout entry={entry} url={url} headings={headings}>
-    <Content />
+    <Content components={mdxComponents} />
   </PageLayout>
 )}

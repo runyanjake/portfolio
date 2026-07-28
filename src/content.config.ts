@@ -16,9 +16,7 @@ const pages = defineCollection({
       title: z.string(),
       slug: z.string().optional(),
       type: z.enum(['page', 'index']).default('page'),
-      display: z
-        .enum(['list', 'cards', 'grid', 'gallery', 'sidebar'])
-        .optional(),
+      display: z.string().optional(),
       sort: z
         .enum(['date-desc', 'date-asc', 'order-asc', 'title'])
         .optional(),
@@ -32,10 +30,14 @@ const pages = defineCollection({
       tags: z.array(z.string()).default([]),
       excerpt: z.string().nullish().transform((v) => v ?? undefined),
       cover: imageRef.optional(),
+      coverAlt: z.string().optional(),
       image: imageRef.optional(),
       website: z.string().url().optional(),
       navLabel: z.string().optional(),
       navOrder: z.number().optional(),
+      scripts: z.array(z.string()).default([]),
+      styles: z.array(z.string()).default([]),
+      shell: z.enum(['default', 'minimal', 'bare']).default('default'),
     });
   },
 });

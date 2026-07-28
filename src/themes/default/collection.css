@@ -1,0 +1,19 @@
+.index {
+  max-width: var(--wide-width);
+  margin: 0 auto;
+}
+
+.index__title {
+  margin: 0 0 var(--space-4);
+  font-size: 2.25rem;
+}
+
+.index__intro {
+  max-width: var(--content-width);
+  color: var(--color-fg-muted);
+  margin-bottom: var(--space-8);
+}
+
+.index__empty {
+  color: var(--color-fg-subtle);
+}

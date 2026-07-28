@@ -16,14 +16,16 @@ const photos = items.filter((i) => i.data.image ?? i.data.cover);
     return (
       <li class="display-gallery__item">
         <a href={item.url} class="display-gallery__link">
-          <SmartImage
-            src={img}
-            alt={item.data.excerpt ?? item.data.title}
-            widths={[320, 480, 640, 960]}
-            sizes="(min-width: 1080px) 320px, (min-width: 720px) 33vw, 50vw"
-            class="display-gallery__image"
-          />
-          <figcaption class="display-gallery__caption">{item.data.title}</figcaption>
+          <figure class="display-gallery__figure">
+            <SmartImage
+              src={img}
+              alt={item.data.excerpt ?? item.data.title}
+              widths={[320, 480, 640, 960]}
+              sizes="(min-width: 1080px) 320px, (min-width: 720px) 33vw, 50vw"
+              class="display-gallery__image"
+            />
+            <figcaption class="display-gallery__caption">{item.data.title}</figcaption>
+          </figure>
         </a>
       </li>
     );

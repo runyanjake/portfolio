@@ -7,7 +7,7 @@ const SiteConfigSchema = z.object({
   title: z.string(),
   tagline: z.string().optional(),
   description: z.string().optional(),
-  theme: z.string().default('default'),
+  theme: z.union([z.string(), z.array(z.string())]).default('default'),
   footer: z.string().optional(),
   nav: z
     .array(
@@ -18,6 +18,8 @@ const SiteConfigSchema = z.object({
     )
     .default([]),
   autoNav: z.boolean().default(true),
+  scripts: z.array(z.string()).default([]),
+  styles: z.array(z.string()).default([]),
 });
 
 export type SiteConfig = z.infer<typeof SiteConfigSchema>;

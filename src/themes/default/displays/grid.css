@@ -1,0 +1,37 @@
+.display-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.display-grid__item {
+  text-align: center;
+}
+
+.display-grid__link {
+  color: inherit;
+  display: block;
+}
+
+.display-grid__image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  transition: transform var(--transition);
+}
+
+.display-grid__link:hover .display-grid__image {
+  transform: scale(1.02);
+}
+
+.display-grid__title {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 0.95rem;
+  color: var(--color-fg);
+}

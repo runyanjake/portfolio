@@ -9,6 +9,7 @@ import {
   buildUrlMap,
   descendants,
   directChildren,
+  entryFolder,
   findSidebarRoot,
   sortChildren,
 } from '../lib/routing';
@@ -20,7 +21,7 @@ interface Props {
 }
 
 const { entry, url, headings } = Astro.props;
-const { title, date, author, cover, excerpt, tags } = entry.data;
+const { title, date, author, cover, coverAlt, excerpt, tags } = entry.data;
 
 const all = await getCollection('pages', (e) => !e.data.draft);
 const urlMap = buildUrlMap(all);
@@ -50,17 +51,15 @@ const formattedDate = date
 const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3;
 ---
 
-<BaseLayout title={title} description={excerpt}>
+<BaseLayout
+  title={title}
+  description={excerpt}
+  scripts={entry.data.scripts}
+  styles={entry.data.styles}
+  shell={entry.data.shell}
+  entryFolder={entryFolder(entry)}
+>
   <article class={sidebarRoot ? 'page page--with-sidebar' : 'page'}>
-    {sidebarRoot && (
-      <aside class="page__sidebar" aria-label="Section navigation">
-        <p class="page__sidebar-title">
-          <a href={sidebarRoot.url}>{sidebarRoot.entry.data.title}</a>
-        </p>
-        <SidebarNav items={sidebarItems} currentUrl={url} />
-      </aside>
-    )}
-
     <div class="page__content">
       <header class="page__header">
         <h1 class="page__title">{title}</h1>
@@ -77,7 +76,7 @@ const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
           </ul>
         )}
         {cover && (
-          <SmartImage src={cover} alt="" class="page__cover" loading="eager" widths={[640, 960, 1280]} />
+          <SmartImage src={cover} alt={coverAlt ?? ''} class="page__cover" loading="eager" widths={[640, 960, 1280]} />
         )}
       </header>
 
@@ -100,5 +99,14 @@ const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
         <slot />
       </div>
     </div>
+
+    {sidebarRoot && (
+      <aside class="page__sidebar" aria-label="Section navigation">
+        <p class="page__sidebar-title">
+          <a href={sidebarRoot.url}>{sidebarRoot.entry.data.title}</a>
+        </p>
+        <SidebarNav items={sidebarItems} currentUrl={url} />
+      </aside>
+    )}
   </article>
 </BaseLayout>

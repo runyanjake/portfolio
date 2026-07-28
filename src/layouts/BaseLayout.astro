@@ -7,12 +7,107 @@ import SiteFooter from '../components/SiteFooter.astro';
 interface Props {
   title?: string;
   description?: string;
+  scripts?: string[];
+  styles?: string[];
+  shell?: 'default' | 'minimal' | 'bare';
+  /** Folder of the page's markdown file, e.g. "blog/foo" for
+   * content/blog/foo/index.md. Enables `./asset` resolution in
+   * scripts:/styles:. Undefined for the 404 page and other non-content pages. */
+  entryFolder?: string;
 }
 
 const site = loadSiteConfig();
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  scripts: pageScripts = [],
+  styles: pageStyles = [],
+  shell = 'default',
+  entryFolder,
+} = Astro.props;
+const showHeader = shell !== 'bare';
+const showFooter = shell === 'default';
 const pageTitle = title ? `${title} — ${site.title}` : site.title;
-const themeHref = `/themes/${site.theme}.css`;
+
+// Themes ------------------------------------------------------------
+const themeUrls = import.meta.glob<string>('../themes/*/index.css', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const activeThemes = Array.isArray(site.theme) ? site.theme : [site.theme];
+const themeHrefs = activeThemes.map((name) => {
+  const url = themeUrls[`../themes/${name}/index.css`];
+  if (!url) throw new Error(`Theme "${name}" not found in src/themes/`);
+  return url;
+});
+
+// Central + co-located style/script drop-ins ------------------------
+// Central: src/styles/<name>.css and src/scripts/<name>.{js,ts} —
+//   referenced by bare name (site-wide via _site.yml or per-page).
+// Co-located: any .css/.js/.ts next to a page's markdown file, e.g.
+//   content/blog/foo/demo.js referenced from that page's frontmatter as
+//   `./demo`. Only works from per-page frontmatter — not from _site.yml,
+//   which has no entry context. Site-wide asset lists come first so
+//   per-page assets cascade over.
+const centralStyleUrls = import.meta.glob<string>('../styles/*.css', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const centralScriptUrls = import.meta.glob<string>('../scripts/*.{js,ts}', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const coStyleUrls = import.meta.glob<string>('../../content/**/*.css', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const coScriptUrls = import.meta.glob<string>('../../content/**/*.{js,ts}', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+
+function resolveStyle(name: string): string {
+  if (name.startsWith('./')) {
+    if (!entryFolder) {
+      throw new Error(`Co-located style "${name}" used on a page without an entryFolder`);
+    }
+    const bare = name.slice(2);
+    const key = `../../content/${entryFolder}/${bare}.css`;
+    const url = coStyleUrls[key];
+    if (!url) throw new Error(`Co-located style not found: content/${entryFolder}/${bare}.css`);
+    return url;
+  }
+  const url = centralStyleUrls[`../styles/${name}.css`];
+  if (!url) throw new Error(`Style "${name}" not found at src/styles/${name}.css`);
+  return url;
+}
+
+function resolveScript(name: string): string {
+  if (name.startsWith('./')) {
+    if (!entryFolder) {
+      throw new Error(`Co-located script "${name}" used on a page without an entryFolder`);
+    }
+    const bare = name.slice(2);
+    const jsKey = `../../content/${entryFolder}/${bare}.js`;
+    const tsKey = `../../content/${entryFolder}/${bare}.ts`;
+    const url = coScriptUrls[jsKey] ?? coScriptUrls[tsKey];
+    if (!url) throw new Error(`Co-located script not found: content/${entryFolder}/${bare}.{js,ts}`);
+    return url;
+  }
+  const jsKey = `../scripts/${name}.js`;
+  const tsKey = `../scripts/${name}.ts`;
+  const url = centralScriptUrls[jsKey] ?? centralScriptUrls[tsKey];
+  if (!url) throw new Error(`Script "${name}" not found at src/scripts/${name}.{js,ts}`);
+  return url;
+}
+
+const styleHrefs = [...site.styles, ...pageStyles].map(resolveStyle);
+const scriptSrcs = [...site.scripts, ...pageScripts].map(resolveScript);
 ---
 
 <!doctype html>
@@ -25,16 +120,19 @@ const themeHref = `/themes/${site.theme}.css`;
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="stylesheet" href={themeHref} />
+    {themeHrefs.map((href) => <link rel="stylesheet" href={href} />)}
+    {styleHrefs.map((href) => <link rel="stylesheet" href={href} />)}
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
+    {scriptSrcs.map((src) => <script type="module" src={src}></script>)}
     <ClientRouter />
   </head>
   <body>
-    <SiteHeader />
-    <main class="site-main">
+    <a href="#main-content" class="skip-to-content">Skip to content</a>
+    {showHeader && <SiteHeader />}
+    <main id="main-content" class="site-main">
       <slot />
     </main>
-    <SiteFooter />
+    {showFooter && <SiteFooter />}
   </body>
 </html>
