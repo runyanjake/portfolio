@@ -124,7 +124,7 @@ const scriptSrcs = [...site.scripts, ...pageScripts].map(resolveScript);
     {styleHrefs.map((href) => <link rel="stylesheet" href={href} />)}
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
-    {scriptSrcs.map((src) => <script type="module" src={src}></script>)}
+    {scriptSrcs.map((src) => <script type="module" src={src} is:inline></script>)}
     <ClientRouter />
   </head>
   <body>

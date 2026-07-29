@@ -37,10 +37,6 @@ export async function getStaticPaths() {
   });
 }
 
-interface Props {
-  entryId: string;
-}
-
 const { entryId } = Astro.props;
 
 const all = await getCollection('pages', (e) => !e.data.draft);
