@@ -50,15 +50,25 @@ pipeline {
         stage('Lint & Type-check') {
             steps {
                 // Runs inside a throwaway container so the agent needs no Node toolchain.
-                // --mount (over -v) is used so paths containing spaces or colons
-                // survive shell word-splitting inside Jenkins' sh step.
+                // Stream the workspace in over stdin via tar rather than bind-mounting.
+                // Bind mounts break here for two reasons: the job name "Jake Portfolio CI"
+                // puts spaces in the workspace path, and Jenkins talks to the host Docker
+                // daemon via a mounted socket -- the daemon resolves --mount source= on
+                // the *host* filesystem, which does not match the Jenkins container's view
+                // of the workspace, so /app ends up empty and `npm ci` cannot see the lock.
                 sh '''
                     set -euo pipefail
-                    docker run --rm \
-                        --mount "type=bind,source=${WORKSPACE},target=/app" \
-                        -w /app \
-                        "${NODE_IMAGE}" \
-                        sh -c "npm ci --no-audit --no-fund && npm run check" \
+                    test -f package-lock.json \
+                        || { echo "ERROR: package-lock.json missing in workspace"; exit 1; }
+                    tar -cf - \
+                            --exclude=./node_modules \
+                            --exclude=./dist \
+                            --exclude=./.git \
+                            . \
+                        | docker run --rm -i \
+                            -w /app \
+                            "${NODE_IMAGE}" \
+                            sh -c "tar -xf - && npm ci --no-audit --no-fund && npm run check" \
                         || { echo "ERROR: lint/type-check failed"; exit 1; }
                 '''
             }
