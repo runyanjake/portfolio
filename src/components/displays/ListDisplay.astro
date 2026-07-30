@@ -1,5 +1,5 @@
 ---
-import type { IndexItem } from '../../layouts/IndexLayout.astro';
+import type { IndexItem } from '../../lib/types';
 
 interface Props {
   items: IndexItem[];
@@ -12,10 +12,10 @@ const { items } = Astro.props;
   {items.map((item) => (
     <li class="display-list__item">
       <a href={item.url} class="display-list__link">
-        <h2 class="display-list__title">{item.data.title}</h2>
-        {item.data.date && (
-          <time class="display-list__date" datetime={item.data.date.toISOString()}>
-            {item.data.date.toLocaleDateString('en-US', {
+        <h2 class="display-list__title">{item.title}</h2>
+        {item.date && (
+          <time class="display-list__date" datetime={item.date.toISOString()}>
+            {item.date.toLocaleDateString('en-US', {
               year: 'numeric',
               month: 'long',
               day: 'numeric',
@@ -23,7 +23,7 @@ const { items } = Astro.props;
             })}
           </time>
         )}
-        {item.data.excerpt && <p class="display-list__excerpt">{item.data.excerpt}</p>}
+        {item.excerpt && <p class="display-list__excerpt">{item.excerpt}</p>}
       </a>
     </li>
   ))}

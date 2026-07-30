@@ -1,7 +1,6 @@
 ---
-import { loadSiteConfig } from '../lib/site';
+import { site } from '../site.config';
 
-const site = loadSiteConfig();
 const year = new Date().getFullYear();
 const footerText = site.footer ?? `© ${year} ${site.title}`;
 ---

@@ -1,0 +1,20 @@
+---
+import { getCollection } from 'astro:content';
+import IndexLayout from '../../layouts/IndexLayout.astro';
+import type { IndexItem } from '../../lib/types';
+
+const friends = await getCollection('friends', ({ data }) => !data.draft);
+friends.sort((a, b) => a.data.title.localeCompare(b.data.title));
+
+const items: IndexItem[] = friends.map((f) => ({
+  url: `/friends/${f.id}`,
+  title: f.data.title,
+  excerpt: f.data.excerpt,
+  image: f.data.image,
+  website: f.data.website,
+}));
+---
+
+<IndexLayout title="Friends" items={items} display="cards">
+  <p>Some of my friends' websites. Join the smallweb!</p>
+</IndexLayout>

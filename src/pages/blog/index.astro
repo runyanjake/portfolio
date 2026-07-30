@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import IndexLayout from '../../layouts/IndexLayout.astro';
+import type { IndexItem } from '../../lib/types';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const items: IndexItem[] = posts.map((p) => ({
+  url: `/blog/${p.id}`,
+  title: p.data.title,
+  excerpt: p.data.excerpt,
+  date: p.data.date,
+  cover: p.data.cover,
+  coverAlt: p.data.coverAlt,
+}));
+---
+
+<IndexLayout title="Blog" items={items} display="list">
+  <p>Some of my ramblings, hope you enjoy.</p>
+</IndexLayout>

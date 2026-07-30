@@ -1,44 +1,29 @@
 ---
-import type { CollectionEntry } from 'astro:content';
 import type { MarkdownHeading } from 'astro';
-import { getCollection } from 'astro:content';
 import BaseLayout from './BaseLayout.astro';
-import SidebarNav from '../components/SidebarNav.astro';
 import SmartImage from '../components/SmartImage.astro';
-import {
-  buildUrlMap,
-  descendants,
-  directChildren,
-  entryFolder,
-  findSidebarRoot,
-  sortChildren,
-} from '../lib/routing';
 
 interface Props {
-  entry: CollectionEntry<'pages'>;
-  url: string;
-  headings: MarkdownHeading[];
+  title: string;
+  excerpt?: string;
+  date?: Date;
+  author?: string;
+  tags?: string[];
+  cover?: ImageMetadata;
+  coverAlt?: string;
+  headings?: MarkdownHeading[];
 }
 
-const { entry, url, headings } = Astro.props;
-const { title, date, author, cover, coverAlt, excerpt, tags } = entry.data;
-
-const all = await getCollection('pages', (e) => !e.data.draft);
-const urlMap = buildUrlMap(all);
-const sidebarRoot = findSidebarRoot(url, urlMap, all);
-
-let sidebarItems: { url: string; data: CollectionEntry<'pages'>['data'] }[] = [];
-if (sidebarRoot) {
-  const items = sortChildren(
-    (sidebarRoot.entry.data.recursive ? descendants : directChildren)(
-      sidebarRoot.url,
-      urlMap,
-      all,
-    ),
-    sidebarRoot.entry.data.sort,
-  );
-  sidebarItems = items.map((c) => ({ url: urlMap.get(c.id)!, data: c.data }));
-}
+const {
+  title,
+  excerpt,
+  date,
+  author,
+  tags = [],
+  cover,
+  coverAlt,
+  headings = [],
+} = Astro.props;
 
 const formattedDate = date
   ? date.toLocaleDateString('en-US', {
@@ -48,18 +33,12 @@ const formattedDate = date
       timeZone: 'UTC',
     })
   : null;
-const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3;
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+const showToc = tocHeadings.length >= 3;
 ---
 
-<BaseLayout
-  title={title}
-  description={excerpt}
-  scripts={entry.data.scripts}
-  styles={entry.data.styles}
-  shell={entry.data.shell}
-  entryFolder={entryFolder(entry)}
->
-  <article class={sidebarRoot ? 'page page--with-sidebar' : 'page'}>
+<BaseLayout title={title} description={excerpt}>
+  <article class="page">
     <div class="page__content">
       <header class="page__header">
         <h1 class="page__title">{title}</h1>
@@ -76,7 +55,13 @@ const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
           </ul>
         )}
         {cover && (
-          <SmartImage src={cover} alt={coverAlt ?? ''} class="page__cover" loading="eager" widths={[640, 960, 1280]} />
+          <SmartImage
+            src={cover}
+            alt={coverAlt ?? ''}
+            class="page__cover"
+            loading="eager"
+            widths={[640, 960, 1280]}
+          />
         )}
       </header>
 
@@ -84,13 +69,11 @@ const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
         <nav class="page__toc" aria-label="Table of contents">
           <p class="page__toc-title">On this page</p>
           <ul>
-            {headings
-              .filter((h) => h.depth >= 2 && h.depth <= 3)
-              .map((h) => (
-                <li class={`page__toc-item page__toc-item--depth-${h.depth}`}>
-                  <a href={`#${h.slug}`}>{h.text}</a>
-                </li>
-              ))}
+            {tocHeadings.map((h) => (
+              <li class={`page__toc-item page__toc-item--depth-${h.depth}`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
           </ul>
         </nav>
       )}
@@ -99,14 +82,5 @@ const showToc = headings.filter((h) => h.depth >= 2 && h.depth <= 3).length >= 3
         <slot />
       </div>
     </div>
-
-    {sidebarRoot && (
-      <aside class="page__sidebar" aria-label="Section navigation">
-        <p class="page__sidebar-title">
-          <a href={sidebarRoot.url}>{sidebarRoot.entry.data.title}</a>
-        </p>
-        <SidebarNav items={sidebarItems} currentUrl={url} />
-      </aside>
-    )}
   </article>
 </BaseLayout>

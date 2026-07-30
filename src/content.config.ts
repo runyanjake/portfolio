@@ -1,45 +1,64 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-const pages = defineCollection({
-  loader: glob({
-    pattern: '**/*.{md,mdx}',
-    base: './content',
-    // Always derive id from the file path. Without this, Astro's loader
-    // would use a frontmatter `slug` as the entire id, breaking
-    // path-based URL resolution in src/lib/routing.ts.
-    generateId: ({ entry }) => entry.replace(/\.(md|mdx)$/, ''),
-  }),
-  schema: ({ image }) => {
-    const imageRef = z.union([image(), z.string()]);
-    return z.object({
+// Strip `/index` off any folder-per-entry file so the id equals the
+// folder name. Astro's default id would otherwise be `<folder>/index`.
+const stripIndex = ({ entry }: { entry: string }) =>
+  entry.replace(/\/index\.(md|mdx)$/i, '').replace(/\.(md|mdx)$/i, '');
+
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog', generateId: stripIndex }),
+  schema: ({ image }) =>
+    z.object({
       title: z.string(),
-      slug: z.string().optional(),
-      type: z.enum(['page', 'index']).default('page'),
-      display: z.string().optional(),
-      sort: z
-        .enum(['date-desc', 'date-asc', 'order-asc', 'title'])
-        .optional(),
-      recursive: z.boolean().default(false),
-      pageSize: z.number().int().positive().optional(),
+      date: z.coerce.date(),
+      author: z.string().optional(),
+      tags: z.array(z.string()).default([]),
+      excerpt: z.string().optional(),
+      cover: image().optional(),
+      coverAlt: z.string().optional(),
       draft: z.boolean().default(false),
-      hidden: z.boolean().default(false),
-      order: z.number().optional(),
+    }),
+});
+
+const projects = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects', generateId: stripIndex }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
       date: z.coerce.date().optional(),
       author: z.string().optional(),
       tags: z.array(z.string()).default([]),
-      excerpt: z.string().nullish().transform((v) => v ?? undefined),
-      cover: imageRef.optional(),
+      excerpt: z.string().optional(),
+      cover: image().optional(),
       coverAlt: z.string().optional(),
-      image: imageRef.optional(),
-      website: z.string().url().optional(),
-      navLabel: z.string().optional(),
-      navOrder: z.number().optional(),
-      scripts: z.array(z.string()).default([]),
-      styles: z.array(z.string()).default([]),
-      shell: z.enum(['default', 'minimal', 'bare']).default('default'),
-    });
-  },
+      order: z.number().optional(),
+      draft: z.boolean().default(false),
+    }),
 });
 
-export const collections = { pages };
+const about = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/about', generateId: stripIndex }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      excerpt: z.string().optional(),
+      cover: image().optional(),
+      coverAlt: z.string().optional(),
+      order: z.number().optional(),
+      draft: z.boolean().default(false),
+    }),
+});
+
+const friends = defineCollection({
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/friends', generateId: stripIndex }),
+  schema: z.object({
+    title: z.string(),
+    website: z.string().url(),
+    image: z.string().url().optional(),
+    excerpt: z.string().optional(),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog, projects, about, friends };

@@ -1,0 +1,32 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { GetStaticPaths } from 'astro';
+import PageLayout from '../../layouts/PageLayout.astro';
+import Callout from '../../components/mdx/Callout.astro';
+import Embed from '../../components/mdx/Embed.astro';
+import Gallery from '../../components/mdx/Gallery.astro';
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection('projects', ({ data }) => !data.draft);
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const { Content, headings } = await render(project);
+---
+
+<PageLayout
+  title={project.data.title}
+  excerpt={project.data.excerpt}
+  date={project.data.date}
+  author={project.data.author}
+  tags={project.data.tags}
+  cover={project.data.cover}
+  coverAlt={project.data.coverAlt}
+  headings={headings}
+>
+  <Content components={{ Callout, Embed, Gallery }} />
+</PageLayout>

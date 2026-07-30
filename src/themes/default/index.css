@@ -2,15 +2,15 @@
  * default theme — entry point
  *
  * A theme is a directory under src/themes/<name>/ containing an
- * index.css that pulls in whatever partials it needs. Select a theme
- * by setting `theme: <name>` in content/_site.yml. Multiple themes can
- * be layered: `theme: [default, my-overrides]` — files load in order,
- * later declarations cascade over earlier ones.
+ * index.css that pulls in whatever partials it needs. Select the
+ * active theme (or a layered array of themes) via `theme:` in
+ * src/site.config.ts. Themes are discovered at build time with
+ * `import.meta.glob('../themes/*\/index.css')` in BaseLayout.
  *
  * To fork this theme, copy the directory, edit values, and reference
- * the new name in _site.yml. To override just a slice (say, the
+ * the new name in site.config.ts. To override just a slice (say, the
  * accent color), create a new theme with a single tokens.css and use
- * `theme: [default, my-accent]`.
+ * `theme: ['default', 'my-accent']`.
  *
  * -----------------------------------------------------------------
  * CSS CONTRACT — class names the framework guarantees it will emit:
@@ -20,8 +20,7 @@
  *                     .site-footer  __inner
  *                     .site-main
  *
- *   Content page:     .page, .page--with-sidebar
- *                     .page__sidebar, .page__sidebar-title
+ *   Content page:     .page
  *                     .page__content
  *                     .page__header, .page__title, .page__meta,
  *                     .page__meta-sep, .page__tags, .page__cover
@@ -37,10 +36,6 @@
  *     .display-cards     __item __link __media __body __title __excerpt
  *     .display-grid      __item __link __image __title
  *     .display-gallery   __item __link __figure __image __caption
- *     .display-sidebar   __nav __main
- *
- *   Sidebar nav:      .sidebar-nav  __group __group-name
- *                                   __list __link __link--active
  *
  *   MDX built-ins:    .callout, .callout--{info,warn,note,danger},
  *                                .callout__icon, .callout__body
@@ -58,12 +53,10 @@
 @import "./chrome.css";
 @import "./page.css";
 @import "./collection.css";
-@import "./sidebar-nav.css";
 @import "./displays/list.css";
 @import "./displays/cards.css";
 @import "./displays/grid.css";
 @import "./displays/gallery.css";
-@import "./displays/sidebar.css";
 @import "./mdx/callout.css";
 @import "./mdx/embed.css";
 @import "./mdx/gallery.css";

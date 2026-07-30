@@ -1,50 +1,35 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import type { IndexItem } from '../lib/types';
 import BaseLayout from './BaseLayout.astro';
-import { entryFolder } from '../lib/routing';
+import CardsDisplay from '../components/displays/CardsDisplay.astro';
+import GalleryDisplay from '../components/displays/GalleryDisplay.astro';
+import GridDisplay from '../components/displays/GridDisplay.astro';
+import ListDisplay from '../components/displays/ListDisplay.astro';
 
-export type IndexItem = {
-  url: string;
-  data: CollectionEntry<'pages'>['data'];
-};
+export type Display = 'list' | 'cards' | 'grid' | 'gallery';
 
 interface Props {
-  entry: CollectionEntry<'pages'>;
-  url: string;
+  title: string;
+  excerpt?: string;
   items: IndexItem[];
+  display?: Display;
 }
 
-const { entry, items, url } = Astro.props;
-const displayName = (entry.data.display ?? 'list').toLowerCase();
+const { title, excerpt, items, display = 'list' } = Astro.props;
 
-// Registry: any Astro component at src/components/displays/<Name>Display.astro
-// is registered as display "<name>" (lowercased stem, minus the "Display"
-// suffix). Drop a new file in that folder and reference it in frontmatter
-// via `display: <name>` — no other code changes required.
-const modules = import.meta.glob<{ default: any }>(
-  '../components/displays/*.astro',
-  { eager: true },
-);
-const registry: Record<string, any> = {};
-for (const [path, mod] of Object.entries(modules)) {
-  const stem = path.split('/').pop()!.replace(/\.astro$/, '');
-  const name = stem.replace(/Display$/, '').toLowerCase();
-  registry[name] = mod.default;
-}
-const DisplayComponent = registry[displayName] ?? registry['list'];
+const displays = {
+  list: ListDisplay,
+  cards: CardsDisplay,
+  grid: GridDisplay,
+  gallery: GalleryDisplay,
+} as const;
+const DisplayComponent = displays[display];
 ---
 
-<BaseLayout
-  title={entry.data.title}
-  description={entry.data.excerpt}
-  scripts={entry.data.scripts}
-  styles={entry.data.styles}
-  shell={entry.data.shell}
-  entryFolder={entryFolder(entry)}
->
+<BaseLayout title={title} description={excerpt}>
   <section class="index">
     <header class="index__header">
-      <h1 class="index__title">{entry.data.title}</h1>
+      <h1 class="index__title">{title}</h1>
     </header>
 
     {Astro.slots.has('default') && (
@@ -56,7 +41,7 @@ const DisplayComponent = registry[displayName] ?? registry['list'];
     {items.length === 0 ? (
       <p class="index__empty">No entries here yet.</p>
     ) : (
-      <DisplayComponent items={items} currentUrl={url} />
+      <DisplayComponent items={items} />
     )}
   </section>
 </BaseLayout>

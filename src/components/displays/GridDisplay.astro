@@ -1,6 +1,6 @@
 ---
 import SmartImage from '../SmartImage.astro';
-import type { IndexItem } from '../../layouts/IndexLayout.astro';
+import type { IndexItem } from '../../lib/types';
 
 interface Props {
   items: IndexItem[];
@@ -11,7 +11,7 @@ const { items } = Astro.props;
 
 <ul class="display-grid">
   {items.map((item) => {
-    const img = item.data.cover ?? item.data.image;
+    const img = item.cover ?? item.image;
     return (
       <li class="display-grid__item">
         <a href={item.url} class="display-grid__link">
@@ -24,7 +24,7 @@ const { items } = Astro.props;
               sizes="(min-width: 720px) 240px, 50vw"
             />
           )}
-          <span class="display-grid__title">{item.data.title}</span>
+          <span class="display-grid__title">{item.title}</span>
         </a>
       </li>
     );

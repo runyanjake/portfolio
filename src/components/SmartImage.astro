@@ -21,12 +21,16 @@ const {
   loading = 'lazy',
 } = Astro.props;
 
+// Local imports (ImageMetadata) run through astro:assets for
+// responsive srcset generation. Remote URLs use a plain <img> so
+// builds don't depend on the remote host being reachable — enough for
+// avatar-style references from third-party sites.
 const isLocal = typeof src !== 'string';
 ---
 
 {isLocal ? (
   <Image
-    src={src as ImageMetadata}
+    src={src}
     alt={alt}
     class={className}
     widths={widths}
@@ -35,7 +39,7 @@ const isLocal = typeof src !== 'string';
   />
 ) : (
   <img
-    src={src as string}
+    src={src}
     alt={alt}
     class={className}
     loading={loading}

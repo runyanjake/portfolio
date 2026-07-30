@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
 export default defineConfig({
+  site: 'https://jake.runyan.dev',
   output: 'static',
   trailingSlash: 'never',
   prefetch: {
