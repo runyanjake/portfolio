@@ -11,7 +11,7 @@ Static personal site for [jake.runyan.dev](https://jake.runyan.dev), built with 
 - Static output with no client framework — only Astro's View Transitions runtime reaches the browser.
 - Multi-stage Docker build to `nginx:alpine`, deployed behind Traefik by Jenkins.
 
-Architecture and authoring reference: [`.claude/DESIGN.md`](.claude/DESIGN.md).
+Architecture: [`.claude/DESIGN.md`](.claude/DESIGN.md). What a page can control, and how far customization goes: [`.claude/AUTHORING.md`](.claude/AUTHORING.md).
 
 ## Prerequisites
 
@@ -45,7 +45,9 @@ The Traefik host in `docker-compose.prod.yml` (`jake2.runyan.dev`) is the deploy
 
 ## Deployment
 
-Pushes are deployed by the Jenkins pipeline in `Jenkinsfile`: preflight → lint and type-check → teardown → build and start → container health check → HTTPS smoke test → Discord notification. The image is built from the checked-out commit; there are no versioned release artifacts or published tags.
+Pushes are deployed by the Jenkins pipeline in `Jenkinsfile`: preflight → lint and type-check → build and start → container health check → Discord notification. The image is built from the checked-out commit; there are no versioned release artifacts or published tags.
+
+The health check probes the container from the inside (`docker exec … wget http://127.0.0.1:80/`) rather than requesting the public URL. The site's public address is the deploy host's own public IP, so a request originating on that host has to hairpin through the router — a path that fails there even while the site is reachable from the internet. Verify the public endpoint from a machine outside the LAN instead; the runbook command below does that.
 
 ## Runbook
 
@@ -91,7 +93,11 @@ docker logs -f jake-website
 docker compose -f docker-compose.prod.yml down && \
   docker compose -f docker-compose.prod.yml up -d --build
 
-# Verify the deployed site responds
+# Verify the deployed site responds.
+# Run this from OUTSIDE the LAN: on the deploy host itself the hostname
+# resolves to that host's own public IP and the request must hairpin
+# through the router, which fails there. Use the health check instead:
+#   docker exec jake-website wget -q -S -O /dev/null http://127.0.0.1:80/
 curl -sS -o /dev/null -w '%{http_code}\n' https://jake2.runyan.dev
 
 # Clean rebuild after dependency or content-schema changes

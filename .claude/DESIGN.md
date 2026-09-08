@@ -108,7 +108,9 @@ Local images referenced by a relative path go through Astro's image pipeline and
 
 The `Dockerfile` is a two-stage build: `node:22-alpine` runs `npm ci && npm run build`, then the static `dist/` is copied into `nginx:alpine`. `nginx.conf` resolves directory-style routes via `try_files`, serves `/404.html` on misses, and caches `/_astro/*` for a year (safe because those filenames are content-hashed).
 
-`Jenkinsfile` drives production deploys on the host: preflight checks → lint and type-check → teardown → `docker compose build && up -d` → container health check → HTTPS smoke test → Discord notification. The lint stage streams the workspace into a throwaway Node container over `tar`/stdin rather than bind-mounting it, because the Jenkins job name contains spaces and the agent talks to the *host* Docker daemon — a bind mount source would resolve on the host filesystem and not match the Jenkins container's view of the workspace.
+`Jenkinsfile` drives production deploys on the host: preflight checks → lint and type-check → `docker compose build && up -d` → container health check → Discord notification. There is no separate teardown stage: tearing down before building took the site offline for the whole build, so `up -d` recreates the container only once the new image exists.
+
+The health check probes nginx from inside the container. It deliberately does not request the public URL: that hostname resolves to the deploy host's own public IP, so a request from a container on that host must hairpin through the router, which fails there even when the site is fine externally. A public-URL check produced red builds on successful deploys. The lint stage streams the workspace into a throwaway Node container over `tar`/stdin rather than bind-mounting it, because the Jenkins job name contains spaces and the agent talks to the *host* Docker daemon — a bind mount source would resolve on the host filesystem and not match the Jenkins container's view of the workspace.
 
 ## Extending
 
