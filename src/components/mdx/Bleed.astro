@@ -1,0 +1,11 @@
+---
+interface Props {
+  width?: 'wide' | 'full';
+}
+
+const { width = 'wide' } = Astro.props;
+---
+
+<div class="bleed" data-bleed={width}>
+  <slot />
+</div>

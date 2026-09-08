@@ -13,14 +13,30 @@
  * `theme: ['default', 'my-accent']`.
  *
  * -----------------------------------------------------------------
- * CSS CONTRACT — class names the framework guarantees it will emit:
+ * PUBLIC TOKEN API — the custom properties a theme layer may override.
+ * These are stable; everything else in tokens.css is internal.
+ *
+ *   Color:    --color-bg, --color-surface, --color-fg,
+ *             --color-fg-muted, --color-fg-subtle,
+ *             --color-accent, --color-accent-fg, --color-border,
+ *             --color-code-bg, --color-code-fg
+ *   Type:     --font-body, --font-heading, --font-mono
+ *   Measure:  --content-width, --wide-width
+ *   Rhythm:   --space-1 … --space-16
+ *   Shape:    --radius-sm, --radius, --radius-lg,
+ *             --shadow-sm, --shadow, --shadow-lg
+ *   Motion:   --transition
+ *
+ * -----------------------------------------------------------------
+ * CSS CONTRACT — class names and attributes the framework guarantees
+ * it will emit:
  *
  *   Skip link:        .skip-to-content
  *   Site chrome:      .site-header  __inner __brand __nav
  *                     .site-footer  __inner
- *                     .site-main
+ *                     .site-main    [data-layout]
  *
- *   Content page:     .page
+ *   Content page:     .page         [data-layout] [data-entry]
  *                     .page__content
  *                     .page__header, .page__title, .page__meta,
  *                     .page__meta-sep, .page__tags, .page__cover
@@ -37,10 +53,24 @@
  *     .display-grid      __item __link __image __title
  *     .display-gallery   __item __link __figure __image __caption
  *
- *   MDX built-ins:    .callout, .callout--{info,warn,note,danger},
- *                                .callout__icon, .callout__body
- *                     .embed
- *                     .gallery
+ *   Blocks (src/components/mdx/index.ts):
+ *     .callout, .callout--{info,warn,note,danger},
+ *               .callout__icon, .callout__body
+ *     .embed
+ *     .gallery
+ *     .figure    [data-bleed=none|wide|full], .figure__caption
+ *     .columns   [data-count=2|3], .columns__col
+ *     .bleed     [data-width=wide|full]
+ *     .aside     [data-side=left|right]
+ *     .steps
+ *
+ *   Attribute values:
+ *     [data-layout] = article | wide | full | canvas
+ *     [data-entry]  = "<collection>/<id>", e.g. "blog/flux-1" —
+ *                     the hook for styling one specific entry
+ *
+ * A theme need not style every block; an unstyled block still renders,
+ * it just falls back to plain flow layout.
  *
  * Any additional class names a theme wants to introduce should start
  * with a theme-specific prefix (e.g. `default--*`) to avoid colliding
@@ -60,4 +90,9 @@
 @import "./mdx/callout.css";
 @import "./mdx/embed.css";
 @import "./mdx/gallery.css";
+@import "./mdx/figure.css";
+@import "./mdx/columns.css";
+@import "./mdx/bleed.css";
+@import "./mdx/aside.css";
+@import "./mdx/steps.css";
 @import "./responsive.css";

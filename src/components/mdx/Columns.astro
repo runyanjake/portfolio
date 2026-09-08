@@ -1,0 +1,11 @@
+---
+interface Props {
+  count?: 2 | 3;
+}
+
+const { count = 2 } = Astro.props;
+---
+
+<div class="columns" data-count={count}>
+  <slot />
+</div>

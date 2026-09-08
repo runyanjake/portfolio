@@ -2,21 +2,27 @@
   .site-main {
     padding: var(--space-6) var(--space-4);
   }
-  .page--with-sidebar,
-  .display-sidebar {
-    grid-template-columns: 1fr;
-    grid-template-areas: "content" "sidebar";
+
+  .site-main[data-width='canvas'] {
+    padding: 0;
   }
-  .page__sidebar,
-  .display-sidebar__nav {
-    position: static;
-    border-right: 0;
-    border-bottom: 1px solid var(--color-border);
-    padding: 0 0 var(--space-4);
-    margin-bottom: var(--space-4);
-  }
+
   .page__title,
   .index__title {
     font-size: 1.75rem;
+  }
+
+  /* Multi-column blocks collapse to a single column. */
+  .columns[data-count='2'],
+  .columns[data-count='3'] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* A wide bleed has no room to escape into on a phone. */
+  .bleed[data-bleed='wide'],
+  .figure[data-bleed='wide'] {
+    width: 100%;
+    margin-left: 0;
+    transform: none;
   }
 }

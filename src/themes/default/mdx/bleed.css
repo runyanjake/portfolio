@@ -1,0 +1,32 @@
+/*
+ * Width escapes. A page's content column is capped at --content-width,
+ * so breaking out means re-centering against the viewport: shift the
+ * left edge to the container's midpoint, then pull back by half the
+ * element's own width.
+ *
+ * <Figure bleed> uses the same mechanism, so both selectors are defined
+ * together here rather than duplicated in figure.css.
+ */
+.bleed,
+.figure[data-bleed='wide'],
+.figure[data-bleed='full'] {
+  margin-block: var(--space-6);
+}
+
+.bleed[data-bleed='wide'],
+.figure[data-bleed='wide'] {
+  width: min(var(--wide-width), 100vw - 2 * var(--space-6));
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.bleed[data-bleed='full'],
+.figure[data-bleed='full'] {
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.bleed > :first-child { margin-top: 0; }
+.bleed > :last-child { margin-bottom: 0; }

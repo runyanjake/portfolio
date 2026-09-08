@@ -1,0 +1,32 @@
+.aside {
+  margin: var(--space-6) 0;
+  padding-left: var(--space-4);
+  border-left: 3px solid var(--color-border);
+  color: var(--color-fg-muted);
+  font-size: 0.92rem;
+}
+
+.aside > :first-child { margin-top: 0; }
+.aside > :last-child { margin-bottom: 0; }
+
+/* Float into the margin only when there is genuinely room beside the
+   content column; below this it stays inline as a bordered note. */
+@media (min-width: 1180px) {
+  .aside[data-side='right'] {
+    float: right;
+    clear: right;
+    width: 200px;
+    margin-right: calc(-200px - var(--space-6));
+  }
+
+  .aside[data-side='left'] {
+    float: left;
+    clear: left;
+    width: 200px;
+    margin-left: calc(-200px - var(--space-6));
+    padding-left: 0;
+    padding-right: var(--space-4);
+    border-left: 0;
+    border-right: 3px solid var(--color-border);
+  }
+}

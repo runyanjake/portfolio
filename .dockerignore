@@ -5,6 +5,12 @@ dist
 .gitignore
 .vscode
 .claude
-README.md
+
+# Root-level docs only. In .dockerignore, `*` does not match `/`, so this
+# covers ./README.md and NOT src/content/**/*.md -- which is what we want,
+# since src/content/ IS the site's content.
+#
+# DO NOT "fix" this to `**/*.md`: that would strip every blog, project,
+# about and friends entry from the build context. Astro would then build an
+# empty site and still exit 0, so the failure would ship silently.
 *.md
-!content/**/*.md

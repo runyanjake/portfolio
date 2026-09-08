@@ -2,9 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import PageLayout from '../../layouts/PageLayout.astro';
-import Callout from '../../components/mdx/Callout.astro';
-import Embed from '../../components/mdx/Embed.astro';
-import Gallery from '../../components/mdx/Gallery.astro';
+import { blocks } from '../../components/mdx';
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -27,6 +25,9 @@ const { Content, headings } = await render(post);
   cover={post.data.cover}
   coverAlt={post.data.coverAlt}
   headings={headings}
+  width={post.data.width}
+  chrome={post.data.chrome}
+  entry={`blog/${post.id}`}
 >
-  <Content components={{ Callout, Embed, Gallery }} />
+  <Content components={blocks} />
 </PageLayout>

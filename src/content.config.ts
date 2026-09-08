@@ -6,6 +6,19 @@ import { glob } from 'astro/loaders';
 const stripIndex = ({ entry }: { entry: string }) =>
   entry.replace(/\/index\.(md|mdx)$/i, '').replace(/\.(md|mdx)$/i, '');
 
+// Presentation switches shared by every collection. Both are enums, so a
+// typo fails the build instead of silently rendering the default. See
+// .claude/AUTHORING.md for what each value does.
+//
+// NB: this field is `width`, not `layout`. `layout` is reserved by Astro's
+// MDX integration -- it is compiled into an import of a layout component,
+// so `layout: wide` in an .mdx file fails the build with an unresolved
+// import of "wide".
+const presentation = {
+  width: z.enum(['article', 'wide', 'full', 'canvas']).default('article'),
+  chrome: z.enum(['default', 'minimal', 'bare']).default('default'),
+};
+
 const blog = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog', generateId: stripIndex }),
   schema: ({ image }) =>
@@ -18,6 +31,7 @@ const blog = defineCollection({
       cover: image().optional(),
       coverAlt: z.string().optional(),
       draft: z.boolean().default(false),
+      ...presentation,
     }),
 });
 
@@ -34,6 +48,7 @@ const projects = defineCollection({
       coverAlt: z.string().optional(),
       order: z.number().optional(),
       draft: z.boolean().default(false),
+      ...presentation,
     }),
 });
 
@@ -47,6 +62,7 @@ const about = defineCollection({
       coverAlt: z.string().optional(),
       order: z.number().optional(),
       draft: z.boolean().default(false),
+      ...presentation,
     }),
 });
 
@@ -58,6 +74,7 @@ const friends = defineCollection({
     image: z.string().url().optional(),
     excerpt: z.string().optional(),
     draft: z.boolean().default(false),
+    ...presentation,
   }),
 });
 

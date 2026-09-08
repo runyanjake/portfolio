@@ -1,6 +1,7 @@
 ---
 import type { MarkdownHeading } from 'astro';
 import BaseLayout from './BaseLayout.astro';
+import type { Chrome, Width } from './BaseLayout.astro';
 import SmartImage from '../components/SmartImage.astro';
 
 interface Props {
@@ -12,6 +13,11 @@ interface Props {
   cover?: ImageMetadata;
   coverAlt?: string;
   headings?: MarkdownHeading[];
+  width?: Width;
+  chrome?: Chrome;
+  /** `<collection>/<id>`, exposed as [data-entry] so a theme or a page
+   *  stylesheet can target exactly one entry. Part of the theme contract. */
+  entry?: string;
 }
 
 const {
@@ -23,6 +29,9 @@ const {
   cover,
   coverAlt,
   headings = [],
+  width = 'article',
+  chrome = 'default',
+  entry,
 } = Astro.props;
 
 const formattedDate = date
@@ -37,8 +46,8 @@ const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 const showToc = tocHeadings.length >= 3;
 ---
 
-<BaseLayout title={title} description={excerpt}>
-  <article class="page">
+<BaseLayout title={title} description={excerpt} chrome={chrome} width={width}>
+  <article class="page" data-width={width} data-entry={entry}>
     <div class="page__content">
       <header class="page__header">
         <h1 class="page__title">{title}</h1>

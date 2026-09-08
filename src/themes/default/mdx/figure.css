@@ -1,0 +1,21 @@
+.figure {
+  margin: var(--space-6) 0;
+}
+
+.figure img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  margin: 0;
+}
+
+.figure[data-bleed='full'] img {
+  border-radius: 0;
+}
+
+.figure__caption {
+  margin-top: var(--space-2);
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-fg-subtle);
+}

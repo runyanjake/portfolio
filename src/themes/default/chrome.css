@@ -71,6 +71,17 @@
   padding: var(--space-8) var(--space-6);
 }
 
+/* `full` widens the shell; `canvas` also drops its padding so a page can
+   paint edge to edge. Both mirror [data-width] on .page — see page.css. */
+.site-main[data-width='full'] {
+  max-width: none;
+}
+
+.site-main[data-width='canvas'] {
+  max-width: none;
+  padding: 0;
+}
+
 .site-footer {
   border-top: 1px solid var(--color-border);
   background: var(--color-surface);

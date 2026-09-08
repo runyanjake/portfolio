@@ -1,0 +1,12 @@
+.columns {
+  display: grid;
+  gap: var(--space-6);
+  margin: var(--space-6) 0;
+}
+
+.columns[data-count='2'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.columns[data-count='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.columns__col { min-width: 0; }
+.columns__col > :first-child { margin-top: 0; }
+.columns__col > :last-child { margin-bottom: 0; }

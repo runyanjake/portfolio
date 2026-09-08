@@ -7,9 +7,20 @@ import SiteFooter from '../components/SiteFooter.astro';
 interface Props {
   title?: string;
   description?: string;
+  chrome?: Chrome;
+  width?: Width;
 }
 
-const { title, description } = Astro.props;
+export type Chrome = 'default' | 'minimal' | 'bare';
+export type Width = 'article' | 'wide' | 'full' | 'canvas';
+
+const { title, description, chrome = 'default', width = 'article' } = Astro.props;
+
+// `chrome` opts a page out of the site shell. The skip link and the
+// #main-content landmark are emitted at every level — a page may be
+// bare, but never unnavigable.
+const showHeader = chrome !== 'bare';
+const showFooter = chrome === 'default';
 const pageTitle = title ? `${title} — ${site.title}` : site.title;
 const metaDescription = description ?? site.description;
 
@@ -47,10 +58,10 @@ const themeHrefs = activeThemes.map((name) => {
   </head>
   <body>
     <a href="#main-content" class="skip-to-content">Skip to content</a>
-    <SiteHeader />
-    <main id="main-content" class="site-main">
+    {showHeader && <SiteHeader />}
+    <main id="main-content" class="site-main" data-width={width}>
       <slot />
     </main>
-    <SiteFooter />
+    {showFooter && <SiteFooter />}
   </body>
 </html>

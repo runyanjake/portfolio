@@ -1,37 +1,20 @@
+/*
+ * Content page. The `layout` frontmatter switch lands here as
+ * [data-width] on .page (and on .site-main, see chrome.css) — four
+ * width behaviours, no extra layout components.
+ */
 .page {
   max-width: var(--content-width);
   margin: 0 auto;
 }
 
-.page--with-sidebar {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  grid-template-areas: "sidebar content";
-  gap: var(--space-8);
+.page[data-width='wide'] {
   max-width: var(--wide-width);
 }
 
-.page--with-sidebar .page__content {
-  grid-area: content;
-}
-
-.page__sidebar {
-  grid-area: sidebar;
-  position: sticky;
-  top: calc(var(--space-12) + var(--space-4));
-  align-self: start;
-  font-size: 0.95rem;
-  border-right: 1px solid var(--color-border);
-  padding-right: var(--space-4);
-}
-
-.page__sidebar-title {
-  font-weight: 600;
-  margin: 0 0 var(--space-3);
-}
-
-.page__sidebar-title a {
-  color: var(--color-fg);
+.page[data-width='full'],
+.page[data-width='canvas'] {
+  max-width: none;
 }
 
 .page__content {
@@ -119,4 +102,10 @@
 .page__body img {
   border-radius: var(--radius);
   margin: var(--space-4) 0;
+}
+
+/* Blocks manage their own image margins and radii. */
+.page__body .figure img,
+.page__body .gallery img {
+  margin: 0;
 }

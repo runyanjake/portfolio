@@ -1,6 +1,6 @@
 # Design
 
-Architecture and authoring reference for the portfolio site. The README covers setup and operations; this document covers how the site is put together and how to add to it.
+Architecture reference for the portfolio site. The README covers setup and operations; this document covers how the site is put together. For the author-facing creative surface — what a page can control and how far customization can go — see [`AUTHORING.md`](AUTHORING.md).
 
 ## Rendering model
 
@@ -18,6 +18,8 @@ Content lives in `src/content/<collection>/` and is declared in `src/content.con
 | `projects` | `title` | `date`, `author`, `tags[]`, `excerpt`, `cover`, `coverAlt`, `order`, `draft` |
 | `about` | `title` | `excerpt`, `cover`, `coverAlt`, `order`, `draft` |
 | `friends` | `title`, `website` | `image`, `excerpt`, `draft` |
+
+Every collection additionally carries the two presentation enums defined once as `presentation` in `src/content.config.ts` — `width` (`article`\|`wide`\|`full`\|`canvas`) and `chrome` (`default`\|`minimal`\|`bare`). Both default to the current behavior, so existing entries are unaffected.
 
 `draft: true` excludes an entry from the build entirely — every `getCollection` call filters on it.
 
@@ -59,8 +61,8 @@ Sort order is decided per section on its index page: blog and projects by date d
 
 Three layouts, composed:
 
-- **`BaseLayout`** — the HTML document: head, meta, favicons, theme stylesheet links, header, footer, skip link. Everything renders through it.
-- **`PageLayout`** — a single content entry: title, date/author line, tags, cover image, body. Emits a table of contents when the body has three or more `h2`/`h3` headings.
+- **`BaseLayout`** — the HTML document: head, meta, favicons, theme stylesheet links, header, footer, skip link. Everything renders through it. Takes `chrome` and `width`: `chrome` decides whether the header and footer render, `width` is stamped on `.site-main` as `data-width`. The skip link and `#main-content` landmark are emitted at every chrome level.
+- **`PageLayout`** — a single content entry: title, date/author line, tags, cover image, body. Emits a table of contents when the body has three or more `h2`/`h3` headings. Stamps `data-width` and `data-entry` (`<collection>/<id>`) on the article root, which is what lets a stylesheet target one specific entry.
 - **`IndexLayout`** — a collection listing: title, optional intro slot, and a display component.
 
 Displays are the interchangeable part of `IndexLayout`. All four take the same prop — `items: IndexItem[]` — and are selected by the `display` prop:
@@ -84,13 +86,17 @@ The class names the framework guarantees it will emit are documented as a commen
 
 ## MDX components
 
-`.mdx` bodies can use three built-in components — `Callout`, `Embed` (YouTube and Vimeo URLs are rewritten to privacy-preserving embed players), and `Gallery`. They need no import in the MDX file because each `[slug].astro` passes them explicitly:
+`.mdx` bodies can use a fixed vocabulary of blocks — `Callout`, `Embed`, `Gallery`, `Figure`, `Columns`, `Column`, `Bleed`, `Aside`, `Steps`. They need no import in the MDX file because every `[slug].astro` passes the whole set:
 
 ```astro
-<Content components={{ Callout, Embed, Gallery }} />
+import { blocks } from '../../components/mdx';
+...
+<Content components={blocks} />
 ```
 
-That list is per-route, so a new component in `src/components/mdx/` must be added to each `[slug].astro` that should offer it.
+`src/components/mdx/index.ts` is the single source of truth for that vocabulary. Adding a block is one import plus one entry in the registry; the routes never change. Per-block styling lives in `src/themes/<theme>/mdx/`, and an unstyled block still renders.
+
+Note that `layout` cannot be used as a frontmatter field name: Astro's MDX integration compiles it into an import of a layout component. The presentation field is `width` for exactly this reason.
 
 ## Images
 
@@ -111,5 +117,6 @@ The `Dockerfile` is a two-stage build: `node:22-alpine` runs `npm ci && npm run 
 | A post | Drop a `.md` file (or folder with `index.md`) into the collection directory. |
 | A section | Add a collection to `src/content.config.ts`, then an `index.astro` + `[slug].astro` pair under `src/pages/`, then a nav entry in `src/site.config.ts`. |
 | A display | Add `src/components/displays/<Name>Display.astro` taking `items: IndexItem[]`, register it in `IndexLayout`'s display map, and add its styles to the theme. |
-| An MDX component | Add `src/components/mdx/<Name>.astro`, pass it in the relevant `[slug].astro` routes, and add a partial under the theme's `mdx/`. |
+| A block | Add `src/components/mdx/<Name>.astro`, add it to the `blocks` registry in `src/components/mdx/index.ts`, and add a partial under the theme's `mdx/`. |
+| A one-off page look | Co-locate an `.astro` component beside the entry and import it from the `.mdx`. Styles are auto-scoped; see [`AUTHORING.md`](AUTHORING.md) tier 2. |
 | A theme | Copy `src/themes/default/`, edit, and point `theme` in `src/site.config.ts` at the new directory name. |

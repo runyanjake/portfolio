@@ -74,23 +74,18 @@ pipeline {
             }
         }
 
-        stage('Teardown') {
-            steps {
-                sh '''
-                    set -euo pipefail
-                    docker compose -f "${COMPOSE_FILE}" down --remove-orphans \
-                        || { echo "ERROR: failed to tear down previous deployment"; exit 1; }
-                '''
-            }
-        }
-
         stage('Build & Deploy') {
             steps {
+                // No separate teardown stage: `down` before `build` took the
+                // site offline for the whole build and widened the window in
+                // which Traefik has no backend registered for this host.
+                // `up -d` recreates the container only once the new image
+                // exists, so downtime is a container restart.
                 sh '''
                     set -euo pipefail
                     docker compose -f "${COMPOSE_FILE}" build --pull \
                         || { echo "ERROR: image build failed"; exit 1; }
-                    docker compose -f "${COMPOSE_FILE}" up -d \
+                    docker compose -f "${COMPOSE_FILE}" up -d --remove-orphans \
                         || { echo "ERROR: deployment start failed"; exit 1; }
                 '''
             }
@@ -98,44 +93,98 @@ pipeline {
 
         stage('Health Check') {
             steps {
+                // .State.Status flips to "running" the instant the container
+                // process is created -- before nginx has bound :80. Probing
+                // the port from inside the container is what actually proves
+                // readiness, and separates "app broken" from "edge broken"
+                // when the smoke test later fails.
                 sh '''
                     set -euo pipefail
+                    ready=0
                     for i in $(seq 1 30); do
                         status=$(docker inspect -f '{{.State.Status}}' "${CONTAINER_NAME}" 2>/dev/null || echo "missing")
                         case "$status" in
-                            running)
-                                echo "Container ${CONTAINER_NAME} is running."
-                                exit 0
-                                ;;
                             exited|dead|removing)
                                 echo "ERROR: container entered failed state: $status"
                                 docker logs --tail 200 "${CONTAINER_NAME}" || true
                                 exit 1
                                 ;;
+                            running)
+                                # busybox wget ships in nginx:alpine already.
+                                if docker exec "${CONTAINER_NAME}" \
+                                       wget -q -O /dev/null http://127.0.0.1:80/ 2>/dev/null; then
+                                    echo "${CONTAINER_NAME} is serving HTTP on :80 (attempt ${i})."
+                                    ready=1
+                                    break
+                                fi
+                                ;;
                         esac
                         echo "waiting for ${CONTAINER_NAME}... (${i}/30) status=${status}"
                         sleep 2
                     done
-                    echo "ERROR: ${CONTAINER_NAME} did not become ready within 60s"
-                    exit 1
+                    if [ "${ready}" != 1 ]; then
+                        echo "ERROR: ${CONTAINER_NAME} did not serve HTTP within 60s"
+                        docker logs --tail 200 "${CONTAINER_NAME}" || true
+                        exit 1
+                    fi
                 '''
             }
         }
 
         stage('Smoke Test') {
             steps {
+                // Single-shot curl made this stage a coin flip: Traefik's
+                // docker provider re-registers the recreated container
+                // asynchronously, so a request in that window can die mid
+                // HTTP/2 stream (curl exit 16) even though the deploy is
+                // fine. Retry with backoff, then assert real content --
+                // "<html" alone also passes for an empty build.
                 sh '''
                     set -euo pipefail
                     body=$(mktemp)
-                    trap "rm -f ${body}" EXIT
-                    code=$(curl -sS -L -o "${body}" -w "%{http_code}" --max-time 15 "${SITE_URL}") \
-                        || { echo "ERROR: could not reach ${SITE_URL}"; exit 1; }
+                    trap 'rm -f "${body}"' EXIT
+
+                    attempts=10
+                    delay=2
+                    code=000
+                    rc=0
+
+                    for i in $(seq 1 "${attempts}"); do
+                        code=$(curl -sS -L -o "${body}" -w '%{http_code}' \
+                                   --connect-timeout 5 --max-time 15 \
+                                   "${SITE_URL}") && rc=0 || rc=$?
+                        if [ "${rc}" = 0 ] && [ "${code}" = "200" ]; then
+                            echo "Reachable on attempt ${i}."
+                            break
+                        fi
+                        echo "attempt ${i}/${attempts}: curl_exit=${rc} http_code=${code}; retrying in ${delay}s"
+                        if [ "${i}" = "${attempts}" ]; then break; fi
+                        sleep "${delay}"
+                        delay=$(( delay * 2 ))
+                        if [ "${delay}" -gt 30 ]; then delay=30; fi
+                    done
+
+                    if [ "${rc}" != 0 ]; then
+                        echo "ERROR: could not reach ${SITE_URL} (curl exit ${rc}) after ${attempts} attempts"
+                        echo "--- does the container serve locally? ---"
+                        docker exec "${CONTAINER_NAME}" wget -q -S -O /dev/null http://127.0.0.1:80/ 2>&1 || true
+                        echo "(container OK + edge failing => Traefik routing/TLS, not the app)"
+                        exit 1
+                    fi
                     if [ "${code}" != "200" ]; then
                         echo "ERROR: ${SITE_URL} returned HTTP ${code}"
                         exit 1
                     fi
                     grep -qi "<html" "${body}" \
                         || { echo "ERROR: response from ${SITE_URL} did not look like an HTML page"; exit 1; }
+
+                    # Content assertion: an empty content dir still builds and
+                    # still serves a valid homepage, so check a real listing.
+                    posts=$(curl -sS -L --max-time 15 "${SITE_URL}/blog") \
+                        || { echo "ERROR: could not fetch ${SITE_URL}/blog"; exit 1; }
+                    echo "${posts}" | grep -q '/blog/' \
+                        || { echo "ERROR: ${SITE_URL}/blog lists zero posts -- content missing from image"; exit 1; }
+
                     echo "Smoke test OK (HTTP ${code})."
                 '''
             }

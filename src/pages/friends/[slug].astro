@@ -2,9 +2,7 @@
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import PageLayout from '../../layouts/PageLayout.astro';
-import Callout from '../../components/mdx/Callout.astro';
-import Embed from '../../components/mdx/Embed.astro';
-import Gallery from '../../components/mdx/Gallery.astro';
+import { blocks } from '../../components/mdx';
 
 export const getStaticPaths = (async () => {
   const friends = await getCollection('friends', ({ data }) => !data.draft);
@@ -22,6 +20,9 @@ const { Content, headings } = await render(friend);
   title={friend.data.title}
   excerpt={friend.data.excerpt}
   headings={headings}
+  width={friend.data.width}
+  chrome={friend.data.chrome}
+  entry={`friends/${friend.id}`}
 >
-  <Content components={{ Callout, Embed, Gallery }} />
+  <Content components={blocks} />
 </PageLayout>
