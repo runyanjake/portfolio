@@ -1,0 +1,34 @@
+---
+/**
+ * The children of a folder, in one of the listing shapes.
+ *
+ * `style:` in the folder's index.md picks the shape. Adding one is a
+ * component under displays/ plus an entry in this map plus a CSS partial
+ * in the theme — nothing else in the engine changes.
+ */
+import type { Item } from './types';
+import Cards from './displays/Cards.astro';
+import Gallery from './displays/Gallery.astro';
+import Grid from './displays/Grid.astro';
+import List from './displays/List.astro';
+
+export type Style = 'page' | 'list' | 'cards' | 'grid' | 'gallery';
+
+const DISPLAYS = { list: List, cards: Cards, grid: Grid, gallery: Gallery } as const;
+
+interface Props {
+  style: Exclude<Style, 'page'>;
+  items: Item[];
+}
+
+const { style, items } = Astro.props;
+const Display = DISPLAYS[style];
+---
+
+<div class="listing" data-style={style}>
+  {items.length === 0 ? (
+    <p class="listing__empty">Nothing here yet.</p>
+  ) : (
+    <Display items={items} />
+  )}
+</div>

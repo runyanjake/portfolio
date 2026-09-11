@@ -1,0 +1,35 @@
+---
+/**
+ * An image from content, from either side of the asset pipeline.
+ *
+ * A relative path in frontmatter or markdown arrives here as
+ * ImageMetadata and goes through astro:assets for a responsive WebP
+ * srcset. An absolute URL arrives as a string and is emitted as a plain
+ * <img>, so a build never depends on a third-party host being up.
+ */
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata | string;
+  alt: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+  loading?: 'eager' | 'lazy';
+}
+
+const {
+  src,
+  alt,
+  class: className,
+  widths = [320, 480, 640, 960],
+  sizes,
+  loading = 'lazy',
+} = Astro.props;
+---
+
+{typeof src === 'string' ? (
+  <img src={src} alt={alt} class={className} loading={loading} decoding="async" />
+) : (
+  <Image src={src} alt={alt} class={className} widths={widths} sizes={sizes} loading={loading} />
+)}

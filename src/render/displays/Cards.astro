@@ -1,0 +1,44 @@
+---
+/**
+ * Titled entries with a blurb and an optional picture.
+ *
+ * The picture is optional on purpose: this is one display, not two. A
+ * folder of essays and a folder of friends' sites are the same shape —
+ * some of the cards just happen to have a face on them.
+ */
+import Image from '../Image.astro';
+import type { Item } from '../types';
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="display-cards">
+  {items.map((item) => (
+    <li class="display-cards__item">
+      <a
+        href={item.url}
+        class="display-cards__link"
+        rel={item.external ? 'noopener' : undefined}
+      >
+        {item.image && (
+          <div class="display-cards__media">
+            <Image
+              src={item.image}
+              alt={item.imageAlt ?? ''}
+              widths={[160, 320, 480]}
+              sizes="(min-width: 560px) 160px, 30vw"
+            />
+          </div>
+        )}
+        <div class="display-cards__body">
+          <h2 class="display-cards__title">{item.title}</h2>
+          {item.excerpt && <p class="display-cards__excerpt">{item.excerpt}</p>}
+        </div>
+      </a>
+    </li>
+  ))}
+</ul>

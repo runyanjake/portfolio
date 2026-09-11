@@ -1,9 +1,14 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+/**
+ * The one page with no entry behind it — there is no content/404/ because
+ * a 404 is not content. It still renders through the engine's shell, so
+ * it carries the same chrome as everything else.
+ */
+import { Document } from '../render';
 ---
 
-<BaseLayout title="Not found">
-  <article class="page">
+<Document title="Page not found">
+  <article class="page" data-width="article">
     <header class="page__header">
       <h1 class="page__title">Page not found</h1>
       <p class="page__meta">404</p>
@@ -13,4 +18,4 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p><a href="/">Go home</a></p>
     </div>
   </article>
-</BaseLayout>
+</Document>

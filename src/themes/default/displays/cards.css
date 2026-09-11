@@ -1,10 +1,19 @@
+/*
+ * Cards — titled entries with a blurb and an optional picture.
+ *
+ * One display serves both the picture-less kind (essays, sections) and
+ * the picture kind (people, links out). The thumbnail is a fixed square
+ * at the start of the card rather than a banner across the top, so a
+ * card with an image and a card without are the same height and sit in
+ * the same grid without the row going ragged.
+ */
 .display-cards {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-4);
 }
 
 .display-cards__item {
@@ -23,31 +32,44 @@
 
 .display-cards__link {
   color: inherit;
-  display: block;
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  height: 100%;
 }
 
 .display-cards__link:hover {
   text-decoration: none;
 }
 
+.display-cards__media {
+  flex: 0 0 auto;
+}
+
 .display-cards__media img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
+  border-radius: var(--radius-sm);
 }
 
 .display-cards__body {
-  padding: var(--space-4);
+  min-width: 0;
 }
 
 .display-cards__title {
   margin: 0 0 var(--space-2);
-  font-size: 1.125rem;
+  font-size: 1.05rem;
   color: var(--color-fg);
+  transition: color var(--transition);
+}
+
+.display-cards__link:hover .display-cards__title {
+  color: var(--color-accent);
 }
 
 .display-cards__excerpt {
   margin: 0;
   color: var(--color-fg-muted);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
 }

@@ -1,11 +1,14 @@
 # portfolio
 
-Static personal site for [jake.runyan.dev](https://jake.runyan.dev), built with Astro — markdown in `src/content/` renders into four sections: blog, projects, about, and friends.
+Static personal site for [jake.runyan.dev](https://jake.runyan.dev), built with Astro. The `content/` tree at the project root is the whole site: every folder is a page, its `index.md` says what the page is, and the folders inside it are its contents.
 
 ## Features
 
-- Four typed content collections, each with its own frontmatter schema validated at build time.
-- Interchangeable index displays — `list`, `cards`, `grid`, `gallery` — chosen per section.
+- Content lives at `content/`, outside `src/` — authors never open the source tree.
+- The content tree is the route table: a folder's path is its URL, and `content/index.md` is the home page.
+- One frontmatter schema, validated at build time; an invalid value fails the build rather than rendering wrong.
+- Every page picks its own shape with `style:` — prose, or prose plus a `list`, `cards`, `grid` or `gallery` of its children.
+- Custom rendering is vanilla markdown plus generic directives (`:::callout`), not HTML or JSX in the prose.
 - Swappable CSS themes; a theme is a directory under `src/themes/` and multiple can be layered.
 - Local images run through Astro's image pipeline: responsive `srcset`, WebP, content-hashed filenames.
 - Static output with no client framework — only Astro's View Transitions runtime reaches the browser.
@@ -27,12 +30,12 @@ npm ci
 
 ## Configuration
 
-There is no `.env` — the site is a static build with no runtime configuration. Settings live in three places:
+There is no `.env` — the site is a static build with no runtime configuration. The nav is not configured — it is derived from `nav:` in the content tree. The rest lives in three places:
 
 | File | Controls |
 |---|---|
-| `src/site.config.ts` | Title, tagline, meta description, footer, nav items, active theme |
-| `astro.config.mjs` | Canonical `site` URL, MDX, prefetch, syntax highlighting theme |
+| `src/site.config.ts` | Title, meta description, footer, active theme |
+| `astro.config.mjs` | Canonical `site` URL, MDX, prefetch, markdown blocks, syntax highlighting theme |
 | `docker-compose.prod.yml` | Container name (`jake-website`), Traefik router host and TLS resolver |
 
 Deploy-time secret, read by `Jenkinsfile` from the Jenkins credential store:
@@ -100,19 +103,38 @@ docker compose -f docker-compose.prod.yml down && \
 #   docker exec jake-website wget -q -S -O /dev/null http://127.0.0.1:80/
 curl -sS -o /dev/null -w '%{http_code}\n' https://jake2.runyan.dev
 
-# Clean rebuild after dependency or content-schema changes
+# Clean rebuild after dependency or content-schema changes.
+# node_modules/.astro is the content cache -- without clearing it, an
+# already-rendered entry is reused and never re-validated.
 rm -rf dist .astro node_modules && npm ci && npm run build
 ```
 
 ### Adding a post
 
-```sh
-# Flat file when the post has no images
-$EDITOR src/content/blog/my-post.md            # → /blog/my-post
+Every entry is a folder with an `index.md`, so it can keep its own images beside it:
 
-# Folder when it does; reference images as ./hero.jpg
-mkdir src/content/blog/my-post
-$EDITOR src/content/blog/my-post/index.md      # → /blog/my-post
+```sh
+mkdir content/blog/my-post
+$EDITOR content/blog/my-post/index.md      # → /blog/my-post
+cp ~/hero.jpg content/blog/my-post/        # reference it as ./hero.jpg
 ```
 
-`blog` requires `title` and `date` in frontmatter. Set `draft: true` to keep an entry out of the build. Full schema per collection: [`.claude/DESIGN.md`](.claude/DESIGN.md).
+### Adding a section
+
+A section is a folder with an `index.md` that has a `style:` other than `page`. There is nothing to register:
+
+```sh
+mkdir content/talks
+cat > content/talks/index.md <<'MD'
+---
+title: Talks
+nav: 7
+style: list
+sort: newest
+---
+
+Things I have said out loud.
+MD
+```
+
+`title` is the only required frontmatter field. Set `draft: true` to keep an entry out of the build. Full schema and the `style:` catalogue: [`.claude/AUTHORING.md`](.claude/AUTHORING.md).

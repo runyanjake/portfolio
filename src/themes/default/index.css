@@ -2,14 +2,14 @@
  * default theme — entry point
  *
  * A theme is a directory under src/themes/<name>/ containing an
- * index.css that pulls in whatever partials it needs. Select the
- * active theme (or a layered array of themes) via `theme:` in
- * src/site.config.ts. Themes are discovered at build time with
- * `import.meta.glob('../themes/*\/index.css')` in BaseLayout.
+ * index.css that pulls in whatever partials it needs. Select the active
+ * theme (or a layered array of themes) via `theme:` in
+ * src/site.config.ts; Document.astro discovers them with
+ * `import.meta.glob('../themes/*\/index.css')`.
  *
- * To fork this theme, copy the directory, edit values, and reference
- * the new name in site.config.ts. To override just a slice (say, the
- * accent color), create a new theme with a single tokens.css and use
+ * To fork this theme, copy the directory, edit values, and reference the
+ * new name in site.config.ts. To override just a slice (say, the accent
+ * color), create a theme with a single tokens.css and use
  * `theme: ['default', 'my-accent']`.
  *
  * -----------------------------------------------------------------
@@ -28,53 +28,52 @@
  *   Motion:   --transition
  *
  * -----------------------------------------------------------------
- * CSS CONTRACT — class names and attributes the framework guarantees
- * it will emit:
+ * CSS CONTRACT — the class names and attributes src/render/ guarantees
+ * it will emit. Every page on the site is one .page, whether it is a
+ * blog post, a section index or the home page; a listing page is a page
+ * with a .listing appended.
  *
- *   Skip link:        .skip-to-content
- *   Site chrome:      .site-header  __inner __brand __nav
- *                     .site-footer  __inner
- *                     .site-main    [data-layout]
+ *   Skip link:    .skip-to-content
+ *   Site chrome:  .site-header   __inner __brand __nav
+ *                 .site-footer   __inner
+ *                 .site-main     [data-width]
  *
- *   Content page:     .page         [data-layout] [data-entry]
- *                     .page__content
- *                     .page__header, .page__title, .page__meta,
- *                     .page__meta-sep, .page__tags, .page__cover
- *                     .page__toc, .page__toc-title,
- *                     .page__toc-item, .page__toc-item--depth-{2,3}
- *                     .page__body
+ *   Page:         .page          [data-width] [data-style] [data-entry]
+ *                 .page__header, .page__title, .page__meta,
+ *                 .page__meta-sep, .page__tags, .page__cover,
+ *                 .page__link
+ *                 .page__toc, .page__toc-title,
+ *                 .page__toc-item, .page__toc-item--depth-{2,3}
+ *                 .page__body
  *
- *   Collection page:  .index, .index__header, .index__title,
- *                     .index__intro, .index__empty
- *
- *   Displays:
+ *   Listing:      .listing [data-style], .listing__empty
  *     .display-list      __item __link __title __date __excerpt
  *     .display-cards     __item __link __media __body __title __excerpt
  *     .display-grid      __item __link __image __title
  *     .display-gallery   __item __link __figure __image __caption
  *
- *   Blocks (src/components/mdx/index.ts):
- *     .callout, .callout--{info,warn,note,danger},
- *               .callout__icon, .callout__body
- *     .embed
- *     .gallery
+ *   Blocks (src/render/markdown/blocks.ts):
+ *     .callout   .callout--{info,note,warn,danger}, .callout__title
  *     .figure    [data-bleed=none|wide|full], .figure__caption
+ *     .gallery   [data-columns=2|3|4]
  *     .columns   [data-count=2|3], .columns__col
- *     .bleed     [data-width=wide|full]
+ *     .bleed     [data-bleed=wide|full]
  *     .aside     [data-side=left|right]
  *     .steps
+ *     .embed
  *
  *   Attribute values:
- *     [data-layout] = article | wide | full | canvas
- *     [data-entry]  = "<collection>/<id>", e.g. "blog/flux-1" —
- *                     the hook for styling one specific entry
+ *     [data-width] = article | wide | full | canvas   — the measure
+ *     [data-style] = page | list | cards | grid | gallery
+ *     [data-entry] = the entry id, e.g. "blog/flux-1" — the hook for
+ *                    styling exactly one page
  *
  * A theme need not style every block; an unstyled block still renders,
  * it just falls back to plain flow layout.
  *
- * Any additional class names a theme wants to introduce should start
- * with a theme-specific prefix (e.g. `default--*`) to avoid colliding
- * with other themes layered on top.
+ * Any additional class names a theme introduces should carry a
+ * theme-specific prefix (e.g. `default--*`) so layered themes cannot
+ * collide.
  * -----------------------------------------------------------------
  */
 
@@ -82,17 +81,17 @@
 @import "./base.css";
 @import "./chrome.css";
 @import "./page.css";
-@import "./collection.css";
+@import "./listing.css";
 @import "./displays/list.css";
 @import "./displays/cards.css";
 @import "./displays/grid.css";
 @import "./displays/gallery.css";
-@import "./mdx/callout.css";
-@import "./mdx/embed.css";
-@import "./mdx/gallery.css";
-@import "./mdx/figure.css";
-@import "./mdx/columns.css";
-@import "./mdx/bleed.css";
-@import "./mdx/aside.css";
-@import "./mdx/steps.css";
+@import "./blocks/callout.css";
+@import "./blocks/embed.css";
+@import "./blocks/gallery.css";
+@import "./blocks/figure.css";
+@import "./blocks/columns.css";
+@import "./blocks/bleed.css";
+@import "./blocks/aside.css";
+@import "./blocks/steps.css";
 @import "./responsive.css";

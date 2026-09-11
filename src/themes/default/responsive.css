@@ -7,12 +7,24 @@
     padding: 0;
   }
 
-  .page__title,
-  .index__title {
+  .site-header__inner {
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .page__title {
     font-size: 1.75rem;
   }
 
   /* Multi-column blocks collapse to a single column. */
+  .columns[data-count='2'],
+  .columns[data-count='3'],
+  .gallery[data-columns='3'],
+  .gallery[data-columns='4'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .columns[data-count='2'],
   .columns[data-count='3'] {
     grid-template-columns: minmax(0, 1fr);

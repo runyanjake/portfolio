@@ -109,3 +109,9 @@
 .page__body .gallery img {
   margin: 0;
 }
+
+/* An entry whose subject lives somewhere else (a friend's site). */
+.page__link {
+  margin: var(--space-3) 0 0;
+  font-size: 0.95rem;
+}

@@ -1,0 +1,33 @@
+---
+/**
+ * Square photos, captions on hover. Entries without an image are
+ * skipped — a gallery of blank tiles is worse than a shorter gallery.
+ */
+import Image from '../Image.astro';
+import type { Item } from '../types';
+
+interface Props {
+  items: Item[];
+}
+
+const photos = Astro.props.items.filter((item) => item.image);
+---
+
+<ul class="display-gallery">
+  {photos.map((item) => (
+    <li class="display-gallery__item">
+      <a href={item.url} class="display-gallery__link" rel={item.external ? 'noopener' : undefined}>
+        <figure class="display-gallery__figure">
+          <Image
+            src={item.image!}
+            alt={item.imageAlt ?? item.title}
+            class="display-gallery__image"
+            widths={[320, 480, 640, 960]}
+            sizes="(min-width: 1080px) 320px, (min-width: 720px) 33vw, 50vw"
+          />
+          <figcaption class="display-gallery__caption">{item.title}</figcaption>
+        </figure>
+      </a>
+    </li>
+  ))}
+</ul>

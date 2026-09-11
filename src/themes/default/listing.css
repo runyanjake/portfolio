@@ -1,0 +1,26 @@
+/*
+ * The listing a folder's index.md appends to its own prose.
+ *
+ * A listing page is a page: it uses .page and the .page__* classes for
+ * its title and intro, and this file styles only the part that is
+ * different — the children. That is why /blog and a blog post sit in the
+ * same column with the same title treatment.
+ */
+.listing {
+  margin-top: var(--space-8);
+}
+
+/* The index.md prose above a listing is an introduction, not the
+   substance of the page, so it reads a shade back from body text. */
+.page:not([data-style='page']) .page__body {
+  color: var(--color-fg-muted);
+}
+
+.page:not([data-style='page']) .page__body > :last-child {
+  margin-bottom: 0;
+}
+
+.listing__empty {
+  color: var(--color-fg-subtle);
+  margin: 0;
+}

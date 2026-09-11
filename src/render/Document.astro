@@ -1,0 +1,75 @@
+---
+/**
+ * The document shell: <html>, <head>, the site chrome, and the main
+ * landmark. Everything the site renders — content entries and the 404
+ * alike — comes out through here.
+ *
+ * It knows nothing about content. It takes a title, a description and
+ * the two presentation switches, and that is the whole contract.
+ */
+import { ClientRouter } from 'astro:transitions';
+import { site } from '../site.config';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+
+export type Chrome = 'default' | 'minimal' | 'bare';
+export type Width = 'article' | 'wide' | 'full' | 'canvas';
+
+interface Props {
+  title?: string;
+  description?: string;
+  chrome?: Chrome;
+  width?: Width;
+}
+
+const { title, description, chrome = 'default', width = 'article' } = Astro.props;
+
+// `chrome` opts a page out of the site shell. The skip link and the
+// #main-content landmark are emitted at every level — a page may be
+// bare, but never unnavigable.
+const showHeader = chrome !== 'bare';
+const showFooter = chrome === 'default';
+const pageTitle = title && title !== site.title ? `${title} — ${site.title}` : site.title;
+const metaDescription = description ?? site.description;
+
+// Themes -------------------------------------------------------------
+// A theme is a directory under src/themes/<name>/ with an index.css
+// entry point. Selection lives in site.config.ts; an array layers them,
+// later entries cascading over earlier ones.
+const themeUrls = import.meta.glob<string>('../themes/*/index.css', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const activeThemes = Array.isArray(site.theme) ? site.theme : [site.theme];
+const themeHrefs = activeThemes.map((name) => {
+  const url = themeUrls[`../themes/${name}/index.css`];
+  if (!url) throw new Error(`Theme "${name}" not found in src/themes/`);
+  return url;
+});
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    {themeHrefs.map((href) => <link rel="stylesheet" href={href} />)}
+    <title>{pageTitle}</title>
+    {metaDescription && <meta name="description" content={metaDescription} />}
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-to-content">Skip to content</a>
+    {showHeader && <Header />}
+    <main id="main-content" class="site-main" data-width={width}>
+      <slot />
+    </main>
+    {showFooter && <Footer />}
+  </body>
+</html>

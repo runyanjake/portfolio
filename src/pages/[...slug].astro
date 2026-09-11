@@ -1,0 +1,26 @@
+---
+/**
+ * Every content page, including the home page.
+ *
+ * The content tree is the route table: an entry's id is its URL, and
+ * `''` (content/index.md) is `/`. Nothing here knows about sections,
+ * displays or layouts — the route finds an entry and the rendering
+ * engine takes it from there.
+ */
+import type { GetStaticPaths } from 'astro';
+import { allEntries, HOME } from '../lib/content';
+import { Entry } from '../render';
+
+export const getStaticPaths = (async () => {
+  const entries = await allEntries();
+  return entries.map((entry) => ({
+    // A rest param of `undefined` is how Astro spells the root route.
+    params: { slug: entry.id === HOME ? undefined : entry.id },
+    props: { entry },
+  }));
+}) satisfies GetStaticPaths;
+
+const { entry } = Astro.props;
+---
+
+<Entry entry={entry} />

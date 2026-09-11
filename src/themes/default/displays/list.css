@@ -2,7 +2,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  max-width: var(--content-width);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);

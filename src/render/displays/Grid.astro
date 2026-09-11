@@ -1,0 +1,32 @@
+---
+/**
+ * Thumbnails with a title underneath. Denser than cards, no blurb.
+ */
+import Image from '../Image.astro';
+import type { Item } from '../types';
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="display-grid">
+  {items.map((item) => (
+    <li class="display-grid__item">
+      <a href={item.url} class="display-grid__link" rel={item.external ? 'noopener' : undefined}>
+        {item.image && (
+          <Image
+            src={item.image}
+            alt={item.imageAlt ?? ''}
+            class="display-grid__image"
+            widths={[240, 360, 480]}
+            sizes="(min-width: 720px) 240px, 50vw"
+          />
+        )}
+        <span class="display-grid__title">{item.title}</span>
+      </a>
+    </li>
+  ))}
+</ul>

@@ -2,111 +2,169 @@
 
 Architecture reference for the portfolio site. The README covers setup and operations; this document covers how the site is put together. For the author-facing creative surface — what a page can control and how far customization can go — see [`AUTHORING.md`](AUTHORING.md).
 
-## Rendering model
+## The shape of the thing
 
-Astro 5, `output: 'static'`. Every page is prerendered at build time into `dist/` and served by nginx — there is no server runtime. Markdown in `src/content/` is the source of truth; nothing is fetched at request time.
+Three ideas do most of the work:
 
-The site ships no client framework. The only JavaScript delivered to the browser is Astro's View Transitions runtime (`<ClientRouter />`), which powers same-origin navigation, paired with viewport-triggered prefetch for internal links.
+1. **The content tree is the site.** `content/` at the project root holds every page. A folder's path is its URL, its `index.md` is the page, and the folders inside it are its children.
+2. **Every page is one component.** `src/render/Entry.astro` renders the home page, a section index and a blog post alike. They differ in frontmatter, not in code.
+3. **Rendering lives in one place.** Everything about how content *looks* is under `src/render/`. Everything about what content *is* is under `src/lib/`. Routes know neither.
 
-## Content collections
+## Where content lives
 
-Content lives in `src/content/<collection>/` and is declared in `src/content.config.ts`. There are four collections, each with its own Zod schema — unknown frontmatter fields are rejected at build time.
+```
+content/
+  index.md                  → /
+  blog/
+    index.md                → /blog          (lists its children)
+    flux-1/
+      index.md              → /blog/flux-1
+      diagram.png           → ./diagram.png
+  about/
+    index.md                → /about
+    pws/
+      index.md              → /about/pws
+      olomana.jpg
+```
 
-| Collection | Required | Optional |
+Content sits at the project root rather than under `src/`, and that is deliberate. Astro reserves exactly one directory — `src/pages/` — and the Content Layer `glob()` loader introduced in Astro 5 takes any `base` path, so `src/content/` is special only to the legacy collections API this site does not use. Putting content beside `src/` rather than inside it draws the line where it actually falls: `content/` is what an author edits, `src/` is what they don't.
+
+The relative-image question resolves in favor of the move too. Images referenced as `./photo.jpg` from a markdown body outside `src/` still go through Astro's asset pipeline and come out as content-hashed WebP with a responsive `srcset` — verified in the build, not assumed.
+
+**Every entry is a folder with an `index.md`.** Flat `my-post.md` files still load, but the folder form is the convention: an entry that can keep its assets beside it never has to reach into a shared images directory, and a post that later grows a diagram does not have to be moved first.
+
+### One collection, not four
+
+`src/content.config.ts` declares a single collection, `content`, with a single schema. Sections are folders, so adding one is `mkdir` — there is no collection to declare, no pair of routes to write, no nav array to update.
+
+| Field | Type | Purpose |
 |---|---|---|
-| `blog` | `title`, `date` | `author`, `tags[]`, `excerpt`, `cover`, `coverAlt`, `draft` |
-| `projects` | `title` | `date`, `author`, `tags[]`, `excerpt`, `cover`, `coverAlt`, `order`, `draft` |
-| `about` | `title` | `excerpt`, `cover`, `coverAlt`, `order`, `draft` |
-| `friends` | `title`, `website` | `image`, `excerpt`, `draft` |
+| `title` | string | **Required.** The only required field. |
+| `excerpt` | string | Blurb in listings; `<meta name="description">` on the page. |
+| `date`, `author`, `tags[]` | | Bibliographic. Rendered when present. |
+| `image`, `imageAlt` | path or URL | The entry's one picture: its cover, and its thumbnail in a parent's listing. |
+| `link` | URL | Points the entry's listing card off-site. |
+| `order` | number | Position under `sort: order`. |
+| `draft` | boolean | Excluded from the build entirely. |
+| `nav` | number or `{order, label}` | Put this entry in the site nav. |
+| `style` | enum | What the page renders as. See below. |
+| `sort` | enum | Order of the children a listing shows. |
+| `width`, `chrome` | enum | Presentation switches. See [`AUTHORING.md`](AUTHORING.md). |
 
-Every collection additionally carries the two presentation enums defined once as `presentation` in `src/content.config.ts` — `width` (`article`\|`wide`\|`full`\|`canvas`) and `chrome` (`default`\|`minimal`\|`bare`). Both default to the current behavior, so existing entries are unaffected.
+`image` is a union: a relative path resolves through `image()` and the asset pipeline, an absolute URL is emitted as-is. That is what lets one `cards` display serve both a folder of essays and a folder of friends whose avatars are hosted elsewhere.
 
-`draft: true` excludes an entry from the build entirely — every `getCollection` call filters on it.
+### Ids and URLs
 
-`cover` is a local image reference resolved through Astro's asset pipeline. `friends.image` is a remote URL string instead, because friend avatars are hosted on third-party sites.
+An entry's id is its path with `/index.md` stripped, so `content/blog/flux-1/index.md` has the id `blog/flux-1` — which is also its URL. The root `content/index.md` has no folder to be named after, so it keeps the id `index`, and `urlOf()` maps that one id to `/`.
 
-### Files and slugs
+Renaming a folder changes its URL. Nothing else refers to ids, so a rename is otherwise safe.
 
-An entry is either a flat file or a folder with an `index.md` inside it:
+## The two halves
 
-```
-src/content/blog/flux-1.md                    → /blog/flux-1
-src/content/about/pws/index.md                → /about/pws
-src/content/about/pws/olomana.jpg             → referenced as ./olomana.jpg
-```
+### `src/lib/content.ts` — what exists
 
-Use the folder form when a post has co-located images; use the flat form otherwise. The URL segment is always the filename or folder name — there is no `slug` frontmatter field. A `generateId` helper in `src/content.config.ts` strips the trailing `/index` so a folder entry's id equals its folder name.
+The content tree as data: which entries there are, how they nest, what order they go in, what URL each lives at. `parentOf`/`childrenOf` derive the hierarchy from ids; `sortEntries` applies one of four comparators; `siteNav` collects every entry carrying a `nav:` field.
 
-Renaming a file changes its URL. Nothing else refers to entry ids, so a rename is otherwise safe.
+Nothing here knows what a page looks like.
+
+### `src/render/` — how it looks
+
+| File | Job |
+|---|---|
+| `Entry.astro` | The front door. Takes an entry, renders the whole page. |
+| `Document.astro` | `<html>`, `<head>`, chrome, the `#main-content` landmark. |
+| `Header.astro`, `Footer.astro` | Site chrome. The header's nav comes from the content tree. |
+| `Listing.astro` | A folder's children, in the shape `style:` asks for. |
+| `displays/*.astro` | The four shapes. Each takes `items: Item[]` and nothing else. |
+| `Image.astro` | Local `ImageMetadata` → `<Image>`; remote URL → plain `<img>`. |
+| `markdown/` | The remark pipeline and the block vocabulary. |
+| `types.ts` | `Item`, the view-model displays render. |
+| `index.ts` | The public surface. Routes import from here and nowhere deeper. |
+
+`Item` is the boundary that keeps displays independent of the schema. `Entry.astro` maps child entries into `Item`s; a display renders whichever fields are present. Adding a frontmatter field cannot break a display, and swapping a display cannot require touching content.
 
 ## Routing
 
-Standard Astro file-based routing under `src/pages/`. Each section owns two routes plus three hand-written pages:
+Two files under `src/pages/`:
 
 ```
 src/pages/
-  index.astro              /            hand-written
-  contact.astro            /contact     hand-written
-  404.astro                /404         hand-written
-  blog/index.astro         /blog        collection index
-  blog/[slug].astro        /blog/*      one page per entry
-  … same pair for about/, projects/, friends/
+  [...slug].astro    every content page, including /
+  404.astro          the one page with no entry behind it
 ```
 
-An index route calls `getCollection` on its own collection, sorts it, and maps entries into `IndexItem` view-models. A `[slug]` route enumerates the same collection in `getStaticPaths` and renders one page per entry.
+`[...slug].astro` enumerates the collection in `getStaticPaths`, maps each id to its URL, and hands the entry to `<Entry />`. It is nine lines and has no knowledge of sections, styles or layouts. Adding a section adds routes automatically, because the content tree *is* the route table.
 
-Sort order is decided per section on its index page: blog and projects by date descending, about by `order` then title, friends alphabetically.
+## Page styles
 
-## Layouts and displays
+`style:` in an entry's frontmatter decides what the page renders as. Every value renders the entry's own prose; the non-`page` values then append a listing of the folder's direct children.
 
-Three layouts, composed:
-
-- **`BaseLayout`** — the HTML document: head, meta, favicons, theme stylesheet links, header, footer, skip link. Everything renders through it. Takes `chrome` and `width`: `chrome` decides whether the header and footer render, `width` is stamped on `.site-main` as `data-width`. The skip link and `#main-content` landmark are emitted at every chrome level.
-- **`PageLayout`** — a single content entry: title, date/author line, tags, cover image, body. Emits a table of contents when the body has three or more `h2`/`h3` headings. Stamps `data-width` and `data-entry` (`<collection>/<id>`) on the article root, which is what lets a stylesheet target one specific entry.
-- **`IndexLayout`** — a collection listing: title, optional intro slot, and a display component.
-
-Displays are the interchangeable part of `IndexLayout`. All four take the same prop — `items: IndexItem[]` — and are selected by the `display` prop:
-
-| Display | Shape |
+| `style` | Renders |
 |---|---|
-| `list` | Vertical list of title, date, excerpt. Used by blog and projects. |
-| `cards` | Card grid with optional image. Used by about and friends. |
-| `grid` | Compact thumbnail grid with title beneath. |
-| `gallery` | Square photo grid with caption. Expects every item to have an image. |
+| `page` | Prose only. A folder can hold entries without advertising them. |
+| `list` | Prose, then children as title + date + excerpt rows. |
+| `cards` | Prose, then children as cards with a blurb and an optional picture. |
+| `grid` | Prose, then children as thumbnails with titles beneath. |
+| `gallery` | Prose, then children as square photos with hover captions. |
 
-`IndexItem` (`src/lib/types.ts`) is the boundary that keeps displays collection-agnostic: index pages map their own collection's entries into it, and displays render whatever fields are present rather than reaching into a collection schema. Adding a field to one collection therefore cannot break a display.
+There is one `cards`, not one for sections and another for people. A card's picture is optional, so a folder of essays and a folder of friends' sites are the same display — some cards just happen to have a face on them. `link:` on a child sends its card off-site rather than to its own page.
 
-## Theming
+Because a listing page renders through `Entry.astro` like any other page, `/blog` and a blog post carry the same reading column, the same title treatment and the same chrome. Consistency is structural rather than something two layouts have to agree on.
 
-A theme is a directory under `src/themes/` containing an `index.css` entry point that `@import`s its partials. `BaseLayout` discovers themes with `import.meta.glob` and links the one named in `src/site.config.ts`. Setting `theme` to an array layers them — later entries cascade over earlier ones, which is how you override an accent color without forking the whole theme.
+## The reading column
 
-The `default` theme splits into tokens, base typography, chrome, page, collection, per-display, per-MDX-component, and responsive partials. Astro bundles and content-hashes the result.
+Every page defaults to `width: article` — the `--content-width` measure, centered. That includes the home page and every section index, which is the point: the column is the site's basic shape, not a blog-post special case.
 
-The class names the framework guarantees it will emit are documented as a comment block at the top of `src/themes/default/index.css`. That comment is the contract between markup and themes: a theme is any set of CSS files targeting those classes, and changing a class name in a component means updating that list.
+`width:` escapes it per entry — `wide` (`--wide-width`), `full` (the shell's width), `canvas` (edge to edge, no padding). The value lands in the markup as `data-width` on both `.site-main` and `.page`, and the theme provides the rules. There are no per-width layout components.
 
-## MDX components
+## Markdown and blocks
 
-`.mdx` bodies can use a fixed vocabulary of blocks — `Callout`, `Embed`, `Gallery`, `Figure`, `Columns`, `Column`, `Bleed`, `Aside`, `Steps`. They need no import in the MDX file because every `[slug].astro` passes the whole set:
+Bodies are vanilla CommonMark plus exactly one extension: **generic directives**, the syntax from CommonMark discussion #575, implemented by `remark-directive`.
 
-```astro
-import { blocks } from '../../components/mdx';
-...
-<Content components={blocks} />
+```md
+:::callout{type=warn title="Heads up"}      container — block content inside
+::embed{url=https://youtu.be/…}             leaf — no body
+:abbr[HTML]{title=…}                        text — inline
 ```
 
-`src/components/mdx/index.ts` is the single source of truth for that vocabulary. Adding a block is one import plus one entry in the registry; the routes never change. Per-block styling lives in `src/themes/<theme>/mdx/`, and an unstyled block still renders.
+The shape is markdown's own: a name, a bracketed body, a brace of attributes — the same grammar as an image or a link. This replaced a set of MDX components (`<Callout>`, `<Figure>`, …) for three reasons:
 
-Note that `layout` cannot be used as a frontmatter field name: Astro's MDX integration compiles it into an import of a layout component. The presentation field is `width` for exactly this reason.
+- **Blocks work in plain `.md`.** They no longer require converting a file to `.mdx`.
+- **Children stay markdown.** A directive is a pure mdast → mdast retag, so an image inside a gallery is still an ordinary markdown image and is still optimized by `astro:assets`. A component would have taken a prop.
+- **Authors write markdown, not JSX in markdown.**
+
+`src/render/markdown/blocks.ts` is the single source of truth for the vocabulary. Adding a block is one entry there plus a CSS partial in the theme — no route, layout or component changes.
+
+### Invalid blocks fail the build
+
+`:::note` — a block that does not exist — is a build error naming the file and listing what is available. So is writing a container block with leaf syntax.
+
+This needs two mechanisms, not one. The remark plugin throws, which surfaces the error in dev at the right file. But **the content loader catches render errors, logs them, and carries on**: on its own, a typo'd directive ships a page with an empty `<body>` and a build that exits 0 — the worst outcome, because nothing reports it. So the plugin also records each failure, and the `blockCheck()` integration in `astro.config.mjs` throws at `astro:build:done` if any were recorded.
+
+Two things about that integration are load-bearing and easy to undo by accident:
+
+- **It must not reset its list at `astro:build:start`.** Content rendering happens during the sync that runs *before* that hook, so resetting there throws the failures away before anything reads them. A build is a fresh process; there is nothing to reset.
+- **`node_modules/.astro` is the content cache.** A cached entry is not re-rendered, so its blocks are not re-validated. Editing a file invalidates its entry, so a newly introduced typo is always caught; the Docker build is always cold, so the deploy path always validates everything.
 
 ## Images
 
-Local images referenced by a relative path go through Astro's image pipeline and come out as responsive `srcset` sets in WebP with content-hashed filenames. Absolute paths point at `public/` and are served untouched. Remote URLs are not processed.
+Local images referenced by a relative path go through Astro's image pipeline and come out as responsive `srcset` sets in WebP with content-hashed filenames — from `content/`, outside `src/`, same as before. Absolute paths point at `public/` and are served untouched. Remote URLs are not processed.
 
-`SmartImage` wraps this: it renders `astro:assets`' `<Image>` for local `ImageMetadata` and falls back to a plain `<img>` for remote URL strings, so a build never depends on a third-party host being reachable.
+`src/render/Image.astro` wraps this: `<Image>` for local `ImageMetadata`, a plain `<img>` for a remote URL string, so a build never depends on a third-party host being reachable.
+
+## Theming
+
+A theme is a directory under `src/themes/` containing an `index.css` entry point that `@import`s its partials. `Document.astro` discovers themes with `import.meta.glob` and links the one named in `src/site.config.ts`. Setting `theme` to an array layers them — later entries cascade over earlier ones, which is how you override an accent color without forking the whole theme.
+
+The `default` theme splits into tokens, base typography, chrome, page, listing, per-display, per-block, and responsive partials.
+
+Two contracts are documented as a comment block at the top of `src/themes/default/index.css`: the **public token API** (the custom properties a theme layer may override) and the **CSS contract** (the class names and attributes `src/render/` guarantees it will emit). Changing a class name in a render component means updating that list.
 
 ## Build and deploy
 
 The `Dockerfile` is a two-stage build: `node:22-alpine` runs `npm ci && npm run build`, then the static `dist/` is copied into `nginx:alpine`. `nginx.conf` resolves directory-style routes via `try_files`, serves `/404.html` on misses, and caches `/_astro/*` for a year (safe because those filenames are content-hashed).
+
+`.dockerignore` excludes `*.md` to keep root-level docs out of the image. In `.dockerignore`, `*` does not match `/`, so that pattern covers `./README.md` and not `content/**/*.md`. Widening it to `**/*.md` would strip the entire site from the build context, and Astro would build an empty site and exit 0.
 
 `Jenkinsfile` drives production deploys on the host: preflight checks → lint and type-check → `docker compose build && up -d` → container health check → Discord notification. There is no separate teardown stage: tearing down before building took the site offline for the whole build, so `up -d` recreates the container only once the new image exists.
 
@@ -116,9 +174,10 @@ The health check probes nginx from inside the container. It deliberately does no
 
 | To add | Do this |
 |---|---|
-| A post | Drop a `.md` file (or folder with `index.md`) into the collection directory. |
-| A section | Add a collection to `src/content.config.ts`, then an `index.astro` + `[slug].astro` pair under `src/pages/`, then a nav entry in `src/site.config.ts`. |
-| A display | Add `src/components/displays/<Name>Display.astro` taking `items: IndexItem[]`, register it in `IndexLayout`'s display map, and add its styles to the theme. |
-| A block | Add `src/components/mdx/<Name>.astro`, add it to the `blocks` registry in `src/components/mdx/index.ts`, and add a partial under the theme's `mdx/`. |
-| A one-off page look | Co-locate an `.astro` component beside the entry and import it from the `.mdx`. Styles are auto-scoped; see [`AUTHORING.md`](AUTHORING.md) tier 2. |
-| A theme | Copy `src/themes/default/`, edit, and point `theme` in `src/site.config.ts` at the new directory name. |
+| A post | `mkdir content/<section>/<name>` with an `index.md` inside. |
+| A section | `mkdir content/<name>` with an `index.md` carrying `style:` and `nav:`. Nothing to register. |
+| A nav link | Add `nav:` to that entry's frontmatter. |
+| A display | `src/render/displays/<Name>.astro` taking `items: Item[]`, one entry in `Listing.astro`'s map, one value in the `style` enum, one CSS partial. |
+| A block | One entry in `src/render/markdown/blocks.ts`, one CSS partial under the theme's `blocks/`. |
+| A one-off page look | Co-locate an `.astro` component beside the entry and import it from an `.mdx`. Styles are auto-scoped; see [`AUTHORING.md`](AUTHORING.md) tier 2. |
+| A theme | Copy `src/themes/default/`, edit, point `theme` in `src/site.config.ts` at the new directory name. |
