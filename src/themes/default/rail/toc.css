@@ -1,0 +1,65 @@
+/*
+ * Table of contents.
+ *
+ * In the gutter it is a bare list — no border, no card — because a box
+ * out there reads as a second column of content rather than as an aside.
+ * When it folds inline above the prose it gets the card treatment, since
+ * at that width it needs something to separate it from the body.
+ */
+.rail-toc {
+  font-size: 0.9rem;
+}
+
+.rail-toc__title {
+  margin: 0 0 var(--space-2);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--color-fg-subtle);
+}
+
+.rail-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rail-toc__item {
+  margin-bottom: var(--space-1);
+  line-height: 1.4;
+}
+
+.rail-toc__item--depth-3 {
+  padding-left: var(--space-3);
+}
+
+.rail-toc__item--depth-4 {
+  padding-left: var(--space-6);
+}
+
+.rail-toc a {
+  color: var(--color-fg-muted);
+}
+
+.rail-toc a:hover {
+  color: var(--color-accent);
+}
+
+/* Inline form: below the gutter breakpoint, or on a page too wide to
+   have a gutter. Mirrors the media query in page.css. */
+@media (max-width: 1279px) {
+  .rail-toc {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+.page:not([data-width='article']) .rail-toc {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+}

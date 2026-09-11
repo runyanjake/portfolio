@@ -62,6 +62,66 @@ const themeHrefs = activeThemes.map((name) => {
     {themeHrefs.map((href) => <link rel="stylesheet" href={href} />)}
     <title>{pageTitle}</title>
     {metaDescription && <meta name="description" content={metaDescription} />}
+
+    {/*
+      The color scheme, resolved at the highest point there is: an
+      attribute on <html>, set before first paint. Everything downstream
+      is a custom property that changes with it, so no component knows
+      which scheme it is in and none can be left behind by a switch.
+
+      `is:inline` is required. A bundled script is deferred, which would
+      paint the default scheme first and then correct it — the flash this
+      exists to avoid. It has to be small and dependency-free for the
+      same reason, so it lives here as source rather than as an import.
+
+      Three listeners keep it honest after load:
+        - astro:after-swap, because ClientRouter replaces <html>'s
+          attributes with the incoming document's, which has no
+          data-theme. Without this, one navigation reverts the scheme.
+        - a click delegated from document, so the toggle button keeps
+          working across navigations without rebinding.
+        - the media query, so a visitor who has never chosen follows
+          their OS live, and one who has chosen is left alone.
+    */}
+    <script is:inline>
+      (() => {
+        const KEY = 'theme';
+        const root = document.documentElement;
+        const system = window.matchMedia('(prefers-color-scheme: light)');
+
+        const stored = () => {
+          try {
+            const v = localStorage.getItem(KEY);
+            return v === 'light' || v === 'dark' ? v : null;
+          } catch {
+            // Private mode and blocked site data both throw here.
+            return null;
+          }
+        };
+
+        const apply = () => {
+          root.dataset.theme = stored() ?? (system.matches ? 'light' : 'dark');
+        };
+
+        apply();
+        document.addEventListener('astro:after-swap', apply);
+        system.addEventListener('change', () => {
+          if (!stored()) apply();
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!event.target.closest('[data-theme-toggle]')) return;
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          try {
+            localStorage.setItem(KEY, next);
+          } catch {
+            // Unstorable choice still applies for this page view.
+          }
+        });
+      })();
+    </script>
+
     <ClientRouter />
   </head>
   <body>

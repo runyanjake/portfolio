@@ -1,11 +1,17 @@
 ---
 /**
- * Site header. The nav is derived from the content tree — any entry with
- * a `nav:` field in its frontmatter — so adding a section to the nav is
- * adding the field, not editing a list here.
+ * Site header: brand and section links to the left, controls to the
+ * right, both inside the shell band so the brand lines up with the rail
+ * in the column beneath it.
+ *
+ * The nav is derived from the content tree — any entry with a `nav:`
+ * field in its frontmatter — so adding a section to the nav is adding
+ * the field, not editing a list here. The brand is the link home, which
+ * is why no entry needs a "Home" nav item.
  */
 import { site } from '../site.config';
 import { siteNav } from '../lib/content';
+import ThemeToggle from './ThemeToggle.astro';
 
 const links = await siteNav();
 const here = Astro.url.pathname.replace(/\/$/, '') || '/';
@@ -26,5 +32,8 @@ const isCurrent = (href: string) => here === href || (href !== '/' && here.start
         ))}
       </ul>
     </nav>
+    <div class="site-header__controls">
+      <ThemeToggle />
+    </div>
   </div>
 </header>

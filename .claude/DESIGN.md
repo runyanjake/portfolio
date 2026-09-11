@@ -49,6 +49,7 @@ The relative-image question resolves in favor of the move too. Images referenced
 | `nav` | number or `{order, label}` | Put this entry in the site nav. |
 | `style` | enum | What the page renders as. See below. |
 | `sort` | enum | Order of the children a listing shows. |
+| `rail` | enum or object | What goes in the margin. Inherited by descendants. |
 | `width`, `chrome` | enum | Presentation switches. See [`AUTHORING.md`](AUTHORING.md). |
 
 `image` is a union: a relative path resolves through `image()` and the asset pipeline, an absolute URL is emitted as-is. That is what lets one `cards` display serve both a folder of essays and a folder of friends whose avatars are hosted elsewhere.
@@ -75,6 +76,8 @@ Nothing here knows what a page looks like.
 | `Document.astro` | `<html>`, `<head>`, chrome, the `#main-content` landmark. |
 | `Header.astro`, `Footer.astro` | Site chrome. The header's nav comes from the content tree. |
 | `Listing.astro` | A folder's children, in the shape `style:` asks for. |
+| `Rail.astro`, `rail/*` | The margin column: a contents list, or reading progress. |
+| `ThemeToggle.astro` | The light/dark button. Markup only — see below. |
 | `displays/*.astro` | The four shapes. Each takes `items: Item[]` and nothing else. |
 | `Image.astro` | Local `ImageMetadata` → `<Image>`; remote URL → plain `<img>`. |
 | `markdown/` | The remark pipeline and the block vocabulary. |
@@ -111,11 +114,50 @@ There is one `cards`, not one for sections and another for people. A card's pict
 
 Because a listing page renders through `Entry.astro` like any other page, `/blog` and a blog post carry the same reading column, the same title treatment and the same chrome. Consistency is structural rather than something two layouts have to agree on.
 
-## The reading column
+## The reading column, and why the header lines up
 
 Every page defaults to `width: article` — the `--content-width` measure, centered. That includes the home page and every section index, which is the point: the column is the site's basic shape, not a blog-post special case.
 
 `width:` escapes it per entry — `wide` (`--wide-width`), `full` (the shell's width), `canvas` (edge to edge, no padding). The value lands in the markup as `data-width` on both `.site-main` and `.page`, and the theme provides the rules. There are no per-width layout components.
+
+The desktop layout rests on one equation, in `tokens.css`:
+
+```
+--shell-width = --content-width + 2 x (--rail-width + --rail-gap) + 2 x --space-6
+      1280px  =       720       + 2 x (    200      +     56    ) + 2 x   24
+```
+
+Header, main and footer all span `--shell-width`; the reading column is centered inside it. Because the equation balances exactly, the gutter left beside the centered column is *precisely* one rail wide — so the rail's left edge lands on the same pixel as the brand above it, and the brand sits as far from the column as the controls sit on the other side.
+
+That is the fix for the header looking off-balance. It was not that the content was off-center — it was centered all along. The problem was a 1100px header band around a 720px column, which put the brand ~190px out from the text with nothing aligned to it and nothing in the space. Giving the gutter a job and sizing the shell to fit it exactly is what makes the arrangement read as deliberate.
+
+Media queries cannot read custom properties, so the literal `1280px` appears in `page.css` and `rail/toc.css` as well. Those three numbers move together; the token comment says so.
+
+## The rail
+
+`rail:` puts a table of contents or a reading-progress indicator in the margin. It is the only **inherited** field: `inherited()` in `src/lib/content.ts` walks from an entry up through its ancestors and returns the nearest value, so `rail: toc` on `content/blog/index.md` reaches every post in the folder. Nearest wins, and `rail: none` opts a subtree back out.
+
+At `--shell-width` and above the rail is absolutely positioned into the gutter with a sticky inner element. The sticky is on the *inner* element, not the rail: the rail spans the article's full height, which gives the sticky child room to travel and stops it at the end of the page instead of trailing over the footer.
+
+Below that width there is no gutter, so the rail stays in normal flow as a card above the content. Same markup, one media query — there is no second component and no JS measuring anything.
+
+A listing page gets no rail: progress through a list of links is meaningless, and the page's substance is the listing. `railIsEmpty()` also suppresses a contents list below `minHeadings`, so a short page leaves no empty box in the margin rather than an empty box.
+
+`Progress.astro` is the only component on the site that ships JavaScript. It measures against `.page__body` rather than the document, because counting the header, title block and footer makes a post read as most-of-the-way-done before the prose starts. Its listeners are re-registered on `astro:page-load` and dropped through an `AbortController` — ClientRouter replaces the body on every navigation, so without that the handlers would accumulate for the length of a browsing session.
+
+## Color scheme
+
+Dark is the default. The scheme is one attribute on `<html>` — `data-theme="dark"` or `"light"` — and every color in the theme is a custom property keyed off it, so no component knows which scheme it is in and none can be left behind by a switch.
+
+Astro has no built-in mechanism for this and there is no library worth the dependency; what follows is the standard static-site pattern, and all of it lives in one inline script in `Document.astro`:
+
+- **It is `is:inline`, and has to be.** A bundled script is deferred, which paints the default scheme and then corrects it — the flash the script exists to prevent. That is also why it is written out as source rather than imported.
+- **It resolves, rather than deferring to CSS.** It reads the stored choice, falls back to `prefers-color-scheme`, and writes an explicit attribute. Because the attribute is always set, each palette is defined exactly once in `tokens.css` — there is no `@media (prefers-color-scheme: light)` block duplicating the light palette. With JavaScript off, nothing sets the attribute and the bare `:root` palette stands, which is dark: the no-JS fallback is the site's stated default rather than an accident.
+- **It re-applies on `astro:after-swap`.** ClientRouter replaces `<html>`'s attributes with the incoming document's, and the incoming document has no `data-theme`. Without this listener, exactly one navigation reverts the scheme. Verified end to end: toggle, two client-side navigations, a full reload.
+- **The click is delegated from `document`.** So `ThemeToggle.astro` carries no script of its own and needs nothing rebound when the header is replaced on navigation.
+- **Which icon shows is decided in CSS**, off the same attribute, so the correct one is painted on the first frame instead of corrected afterwards.
+
+The status hues callouts use (`--color-info`, `--color-warn`, `--color-danger`) are tokens rather than literals for the same reason: they need different values to hold their contrast on a dark surface.
 
 ## Markdown and blocks
 

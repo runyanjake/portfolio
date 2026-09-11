@@ -59,6 +59,7 @@ draft: true                   # excluded from the build entirely
 nav: 3                        # put it in the site nav; or {order: 3, label: "…"}
 style: list                   # what this page renders as
 sort: newest                  # order of the children it lists
+rail: toc                     # what goes in the margin (inherited)
 width: article                # the measure
 chrome: default               # the site shell
 ```
@@ -84,6 +85,47 @@ Every value renders the entry's own prose. The non-`page` values then append a l
 `newest` (default) · `oldest` · `order` (by the `order:` field, unset last) · `title`
 
 Entries with no `date` sort last under `newest`/`oldest` rather than pretending to be from 1970.
+
+#### `rail` — what goes in the margin
+
+The one inherited field. Set it on a section's index.md and every entry
+in the folder gets it, which is the point: the blog's posts all carry a
+table of contents because `content/blog/index.md` says so, not because
+eight post files each remembered to ask.
+
+```yaml
+rail: toc                                  # a table of contents
+rail: progress                             # how far through the reader is
+rail: none                                 # nothing (the default)
+rail: { show: toc, depth: 4, title: Contents, minHeadings: 2 }
+```
+
+| Value | Shows |
+|---|---|
+| `none` | Nothing. The default. |
+| `toc` | Links to the page's own `h2`–`h<depth>` headings. |
+| `progress` | A bar and a percentage tracking how far through the body the reader is. |
+
+| Option | Default | Effect |
+|---|---|---|
+| `show` | `none` | Which of the above. |
+| `title` | `On this page` / `Progress` | The label above it. |
+| `depth` | `3` | Deepest heading level a contents list includes (2–4). |
+| `minHeadings` | `3` | Below this many headings the contents list hides — on a short page it is a second title, not navigation. |
+
+Resolution is nearest-wins: an entry's own `rail:` beats its section's,
+which beats `content/index.md`'s. `rail: none` is how a subtree opts back
+out of something an ancestor turned on.
+
+**Listing pages get no rail.** Progress through a list of links means
+nothing, and a listing page's substance is the listing rather than its
+intro prose. So `rail:` on `content/blog/index.md` describes the posts,
+not `/blog` itself.
+
+On a wide screen the rail sits in the left gutter, aligned with the brand
+in the header, and sticks as the reader scrolls. Narrower than
+`--shell-width` there is no gutter to sit in, so it folds into a card
+above the content. Same markup either way.
 
 #### `width` — the measure
 
@@ -112,6 +154,10 @@ There is no nav config. An entry with a `nav:` field is in the nav; one without 
 nav: 3                              # order 3, labelled with the title
 nav: {order: 3, label: Writing}     # order 3, labelled "Writing"
 ```
+
+`content/index.md` deliberately has no `nav:`. The brand in the header is
+the link home, so a "Home" item would be a second control for the same
+destination.
 
 ### Tier 1 — Block vocabulary
 
@@ -222,6 +268,18 @@ So theme CSS or an imported stylesheet can target exactly one page:
 
 `data-entry` is part of the documented theme contract, so it is a stable API rather than an accident of markup. `data-style` is there too, which is how the theme dims the intro prose above a listing without the renderer needing a separate class for it.
 
+#### There is no `theme` frontmatter field
+
+Light and dark are the visitor's choice, not the author's. The scheme is
+resolved once on `<html>` as `[data-theme]` before first paint, and every
+color in the theme is a custom property that changes with it — so an
+entry cannot pin itself to one scheme, and nothing an author writes needs
+to know which scheme it is being read in.
+
+The corollary matters for Tier 2: a co-located component must use the
+color tokens rather than literal colors, or it will be the one thing on
+the page that does not follow the switch.
+
 ### Tier 4 — Theme and theme layers
 
 Site-wide look. A theme is a directory under `src/themes/` with an `index.css` entry point; `theme` in `src/site.config.ts` selects it, and an array layers them — later entries cascade over earlier.
@@ -247,6 +305,8 @@ Tier 2 is therefore a *maintainability* boundary, not a security one, and none o
 ## Gotchas
 
 - **`layout:` is reserved in MDX frontmatter.** Use `width:`. See Tier 0.
+- **`rail:` is the only inherited field.** Everything else applies to the entry it is written on.
+- **A contents list can vanish.** Fewer than `minHeadings` headings and the rail is omitted, by design. Lower `minHeadings` if a short page really wants one.
 - **Underscore prefixes do not hide files.** The glob loader has no special handling for `_`-prefixed names — `content/blog/_draft/index.md` publishes at `/blog/_draft`. Use `draft: true`.
 - **Renaming a folder changes its URL.** Ids derive from paths and nothing else references them.
 - **A nested container directive needs more colons than its parent.** `::::columns` around `:::column`.

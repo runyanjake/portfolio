@@ -1,0 +1,32 @@
+---
+/**
+ * The light/dark switch.
+ *
+ * Deliberately has no script of its own. The whole mechanism — reading
+ * the stored choice, resolving the OS preference, applying the
+ * attribute, handling the click — is the inline script in
+ * Document.astro, which listens for clicks on [data-theme-toggle]
+ * delegated from `document`. So this button keeps working across
+ * view-transition navigations without anything to rebind or tear down,
+ * and it renders identically whether or not that script has run.
+ *
+ * Both icons are always in the markup and CSS shows one, keyed off the
+ * same [data-theme] attribute as everything else. Choosing in CSS rather
+ * than in JS means the right icon is painted on the first frame.
+ */
+---
+
+<button
+  class="theme-toggle"
+  type="button"
+  data-theme-toggle
+  aria-label="Toggle light and dark theme"
+>
+  <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="4.5"></circle>
+    <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"></path>
+  </svg>
+  <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"></path>
+  </svg>
+</button>

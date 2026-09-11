@@ -90,6 +90,27 @@ const content = defineCollection({
        */
       width: z.enum(['article', 'wide', 'full', 'canvas']).default('article'),
 
+      /**
+       * What goes in the margin beside the page: `toc` for a table of
+       * contents, `progress` for a reading indicator, `none` for
+       * nothing. Long form takes `title`, `depth` and `minHeadings`.
+       *
+       * Inherited: set it once on a section's index.md and every entry
+       * in that folder gets it. An entry that sets its own wins, and
+       * `rail: none` opts a subtree back out.
+       */
+      rail: z
+        .union([
+          z.enum(['none', 'toc', 'progress']),
+          z.object({
+            show: z.enum(['none', 'toc', 'progress']),
+            title: z.string().optional(),
+            depth: z.number().int().min(2).max(4).optional(),
+            minHeadings: z.number().int().min(0).optional(),
+          }),
+        ])
+        .optional(),
+
       /** The site shell: header + footer, header only, or neither. */
       chrome: z.enum(['default', 'minimal', 'bare']).default('default'),
     }),

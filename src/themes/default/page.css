@@ -1,11 +1,16 @@
 /*
- * Content page. The `layout` frontmatter switch lands here as
+ * Content page. The `width` frontmatter switch lands here as
  * [data-width] on .page (and on .site-main, see chrome.css) — four
  * width behaviours, no extra layout components.
+ *
+ * The column is centered in the shell rather than left-aligned in it, so
+ * the prose is centered on screen; `position: relative` is what lets the
+ * rail hang in the gutter beside it.
  */
 .page {
   max-width: var(--content-width);
   margin: 0 auto;
+  position: relative;
 }
 
 .page[data-width='wide'] {
@@ -63,42 +68,6 @@
   border-radius: var(--radius);
 }
 
-.page__toc {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-6);
-  font-size: 0.92rem;
-}
-
-.page__toc-title {
-  margin: 0 0 var(--space-2);
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  color: var(--color-fg-subtle);
-}
-
-.page__toc ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.page__toc-item--depth-3 {
-  padding-left: var(--space-4);
-}
-
-.page__toc a {
-  color: var(--color-fg-muted);
-}
-
-.page__toc a:hover {
-  color: var(--color-accent);
-}
-
 .page__body img {
   border-radius: var(--radius);
   margin: var(--space-4) 0;
@@ -114,4 +83,43 @@
 .page__link {
   margin: var(--space-3) 0 0;
   font-size: 0.95rem;
+}
+
+/*
+ * The rail.
+ *
+ * Narrow first: a card above the content, which is also what a page gets
+ * at any width when it is too wide to leave a gutter. The media query
+ * below is the enhancement, not the baseline.
+ */
+.page__rail {
+  display: block;
+  margin-bottom: var(--space-6);
+}
+
+/*
+ * 1280px is --shell-width, and that is exactly the point. At or above
+ * it the shell is capped, so the gutter beside the centered column is
+ * always precisely --rail-width + --rail-gap and the rail lands flush
+ * with the brand. Below it the shell is narrower than the equation in
+ * tokens.css assumes, the gutter shrinks, and the rail would hang off
+ * the left edge — so it folds inline instead.
+ */
+@media (min-width: 1280px) {
+  .page[data-width='article'] > .page__rail {
+    position: absolute;
+    inset-block: 0;
+    /* Out into the gutter, so the column itself stays centered. */
+    left: calc(-1 * (var(--rail-width) + var(--rail-gap)));
+    width: var(--rail-width);
+    margin-bottom: 0;
+  }
+
+  /* Sticky on the inner element, not the rail: the rail spans the whole
+     article so the sticky child is free to travel its full height and
+     stops at the end of the page rather than trailing into the footer. */
+  .page[data-width='article'] > .page__rail > * {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-6));
+  }
 }

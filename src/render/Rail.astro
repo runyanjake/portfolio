@@ -1,0 +1,29 @@
+---
+/**
+ * The margin beside a page.
+ *
+ * On a wide screen it sits in the left gutter, aligned with the brand in
+ * the header above it, and sticks as the reader scrolls. Below the width
+ * where the gutter can hold it, it folds into a card above the content.
+ * Both are the same markup — see the theme's rail partials.
+ *
+ * Adding a rail kind is a component here plus one entry in this map plus
+ * one value in the `rail.show` enum.
+ */
+import type { MarkdownHeading } from 'astro';
+import type { RailSpec } from './rail/spec';
+import Progress from './rail/Progress.astro';
+import Toc from './rail/Toc.astro';
+
+interface Props {
+  spec: RailSpec;
+  headings: MarkdownHeading[];
+}
+
+const { spec, headings } = Astro.props;
+---
+
+<aside class="page__rail" data-rail={spec.show}>
+  {spec.show === 'toc' && <Toc spec={spec} headings={headings} />}
+  {spec.show === 'progress' && <Progress spec={spec} />}
+</aside>

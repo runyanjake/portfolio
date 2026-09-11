@@ -1,0 +1,32 @@
+---
+/**
+ * A table of contents for the page's own headings.
+ *
+ * Renders nothing below `minHeadings` — on a short page a contents list
+ * is a second title, not navigation. Entry.astro checks the same
+ * condition so the rail leaves no empty box behind.
+ */
+import type { MarkdownHeading } from 'astro';
+import { tocHeadings, type RailSpec } from './spec';
+
+interface Props {
+  spec: RailSpec;
+  headings: MarkdownHeading[];
+}
+
+const { spec, headings } = Astro.props;
+const items = tocHeadings(headings, spec);
+---
+
+{items.length > 0 && (
+  <nav class="rail-toc" aria-label={spec.title}>
+    <p class="rail-toc__title">{spec.title}</p>
+    <ul>
+      {items.map((h) => (
+        <li class={`rail-toc__item rail-toc__item--depth-${h.depth}`}>
+          <a href={`#${h.slug}`}>{h.text}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}

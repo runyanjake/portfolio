@@ -1,0 +1,95 @@
+---
+/**
+ * How far the reader is through the document.
+ *
+ * Measured against `.page__body` rather than the document: the header,
+ * the title block and the footer are not part of what the reader came
+ * to read, and counting them makes a post read as 80% done before the
+ * prose has started.
+ */
+import type { RailSpec } from './spec';
+
+interface Props {
+  spec: RailSpec;
+}
+
+const { spec } = Astro.props;
+---
+
+<div class="rail-progress" data-rail-progress>
+  <p class="rail-progress__title">{spec.title}</p>
+  <div
+    class="rail-progress__track"
+    role="progressbar"
+    aria-label={spec.title}
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="0"
+    data-rail-progress-track
+  >
+    <div class="rail-progress__fill" data-rail-progress-fill></div>
+  </div>
+  <p class="rail-progress__value" data-rail-progress-value>0%</p>
+</div>
+
+<script>
+  /**
+   * Re-initialised on every navigation, because ClientRouter swaps the
+   * body and the elements this held references to go with it. The
+   * AbortController is what makes that safe: one call to abort() drops
+   * every listener from the previous page, so listeners cannot pile up
+   * across a long browsing session.
+   */
+  let active: AbortController | undefined;
+
+  function start() {
+    active?.abort();
+
+    const rail = document.querySelector<HTMLElement>('[data-rail-progress]');
+    const body = document.querySelector<HTMLElement>('.page__body');
+    if (!rail || !body) return;
+
+    const track = rail.querySelector<HTMLElement>('[data-rail-progress-track]');
+    const fill = rail.querySelector<HTMLElement>('[data-rail-progress-fill]');
+    const value = rail.querySelector<HTMLElement>('[data-rail-progress-value]');
+    if (!track || !fill || !value) return;
+
+    active = new AbortController();
+    const { signal } = active;
+    let queued = false;
+
+    const measure = () => {
+      queued = false;
+      // The body's top relative to the viewport goes negative as it
+      // scrolls past; the reader is done when its bottom reaches the
+      // bottom of the viewport, which is `height - innerHeight` of
+      // travel. A body shorter than the viewport is fully read.
+      const travel = body.offsetHeight - window.innerHeight;
+      const scrolled = -body.getBoundingClientRect().top;
+      const ratio = travel <= 0 ? 1 : Math.min(Math.max(scrolled / travel, 0), 1);
+      const percent = Math.round(ratio * 100);
+
+      fill.style.inlineSize = `${percent}%`;
+      value.textContent = `${percent}%`;
+      track.setAttribute('aria-valuenow', String(percent));
+    };
+
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(measure);
+    };
+
+    addEventListener('scroll', schedule, { passive: true, signal });
+    addEventListener('resize', schedule, { passive: true, signal });
+    measure();
+  }
+
+  // astro:page-load fires on the initial load as well as after every
+  // view-transition navigation, so one listener covers both. start() is
+  // also called directly in case the module evaluates after the initial
+  // event has already gone out; it aborts any previous run, so a double
+  // call costs nothing.
+  document.addEventListener('astro:page-load', start);
+  start();
+</script>

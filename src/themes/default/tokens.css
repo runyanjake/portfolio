@@ -1,4 +1,51 @@
-:root {
+/*
+ * Design tokens, and the two color schemes.
+ *
+ * Dark is the default: the bare `:root` palette is the dark one, and
+ * light is opt-in. A visitor with no stored choice gets whatever their
+ * OS asks for, because the inline script in Document.astro resolves
+ * `prefers-color-scheme` into an explicit [data-theme] before first
+ * paint. With JavaScript off nothing sets the attribute and the bare
+ * :root palette stands, which is dark — the site's stated preference,
+ * so the no-JS fallback is the intended default rather than an accident.
+ *
+ * Each palette is therefore defined exactly once. Resist the urge to add
+ * a `@media (prefers-color-scheme: light)` block "for completeness": it
+ * would mean maintaining the light palette in two places, and the script
+ * already covers every case it would.
+ *
+ * `color-scheme` rides along with each palette so form controls,
+ * scrollbars and the canvas behind the page match without being styled.
+ */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: #0f1115;
+  --color-surface: #161a21;
+  --color-fg: #e6e8eb;
+  --color-fg-muted: #a8b0bb;
+  --color-fg-subtle: #6f7682;
+  --color-accent: #f6739f;
+  --color-accent-fg: #1a0a14;
+  --color-border: #242a33;
+  --color-code-bg: #1f2329;
+  --color-code-fg: #e6edf3;
+
+  /* Status hues, for callouts. Tokens rather than literals so a scheme
+     or a theme layer can retune them; they need more lift on dark. */
+  --color-info: #60a5fa;
+  --color-warn: #fbbf24;
+  --color-danger: #f87171;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+
   --color-bg: #fafafa;
   --color-surface: #ffffff;
   --color-fg: #1a1a1a;
@@ -10,12 +57,50 @@
   --color-code-bg: #1f2329;
   --color-code-fg: #e6edf3;
 
+  --color-info: #3b82f6;
+  --color-warn: #f59e0b;
+  --color-danger: #ef4444;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Scheme-independent tokens. */
+:root {
   --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-heading: var(--font-body);
   --font-mono: ui-monospace, "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace;
 
+  /*
+   * The measures, and the one equation that ties them together:
+   *
+   *   --shell-width = --content-width
+   *                 + 2 x (--rail-width + --rail-gap)
+   *                 + 2 x --space-6          (the shell's own padding)
+   *
+   *   1280px = 720 + 2 x (200 + 56) + 2 x 24
+   *
+   * That is not decoration. Because it balances exactly, the reading
+   * column is centered on screen *and* the leftover gutter is precisely
+   * one rail wide, so the rail's left edge lands on the same pixel as
+   * the brand in the header above it and the distance from the brand to
+   * the column equals the distance from the column to the controls. The
+   * header stops looking arbitrary because everything in it is aligned
+   * to something.
+   *
+   * Change one of these and the others have to move, including the
+   * literal 1280px in the media queries in page.css and rail/toc.css —
+   * media queries cannot read custom properties, so those numbers are
+   * the one place the equation is duplicated.
+   */
   --content-width: 720px;
   --wide-width: 1100px;
+  --shell-width: 1280px;
+  --rail-width: 200px;
+  --rail-gap: 3.5rem;
+  --header-height: 3.25rem;
+
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -28,22 +113,6 @@
   --radius-sm: 4px;
   --radius: 8px;
   --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
   --transition: 150ms ease;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #0f1115;
-    --color-surface: #161a21;
-    --color-fg: #e6e8eb;
-    --color-fg-muted: #a8b0bb;
-    --color-fg-subtle: #6f7682;
-    --color-accent: #f6739f;
-    --color-accent-fg: #1a0a14;
-    --color-border: #242a33;
-  }
 }

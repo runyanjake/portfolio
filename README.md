@@ -8,6 +8,8 @@ Static personal site for [jake.runyan.dev](https://jake.runyan.dev), built with 
 - The content tree is the route table: a folder's path is its URL, and `content/index.md` is the home page.
 - One frontmatter schema, validated at build time; an invalid value fails the build rather than rendering wrong.
 - Every page picks its own shape with `style:` — prose, or prose plus a `list`, `cards`, `grid` or `gallery` of its children.
+- `rail:` puts a table of contents or a reading-progress indicator in the margin, declared once per section and inherited by its entries.
+- Light and dark schemes, dark by default, resolved before first paint; every color is a token, so nothing is left behind by the switch.
 - Custom rendering is vanilla markdown plus generic directives (`:::callout`), not HTML or JSX in the prose.
 - Swappable CSS themes; a theme is a directory under `src/themes/` and multiple can be layered.
 - Local images run through Astro's image pipeline: responsive `srcset`, WebP, content-hashed filenames.
@@ -131,6 +133,7 @@ title: Talks
 nav: 7
 style: list
 sort: newest
+rail: toc
 ---
 
 Things I have said out loud.

@@ -1,8 +1,5 @@
 ---
 title: Jake Runyan
-nav:
-  label: Home
-  order: 1
 style: page
 excerpt: Bay Area software engineer. Homelabs, bikes, and side projects.
 ---

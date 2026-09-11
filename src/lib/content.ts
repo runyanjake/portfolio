@@ -34,6 +34,30 @@ export function parentOf(id: string): string | null {
 export const childrenOf = (entries: Entry[], id: string): Entry[] =>
   entries.filter((entry) => parentOf(entry.id) === id);
 
+/**
+ * The nearest value of `field` on this entry or, failing that, on its
+ * closest ancestor.
+ *
+ * This is how a setting gets declared once on a section's index.md and
+ * picked up by everything in the folder. Only fields meant to be
+ * inherited should be read this way — `rail` is, `title` very much is
+ * not.
+ */
+export function inherited<K extends keyof Entry['data']>(
+  entries: Entry[],
+  id: string,
+  field: K,
+): Entry['data'][K] | undefined {
+  const byId = new Map(entries.map((entry) => [entry.id, entry]));
+  let cursor: string | null = id;
+  while (cursor !== null) {
+    const value = byId.get(cursor)?.data[field];
+    if (value !== undefined) return value;
+    cursor = parentOf(cursor);
+  }
+  return undefined;
+}
+
 const byTitle = (a: Entry, b: Entry) => a.data.title.localeCompare(b.data.title);
 
 const byDate = (direction: 1 | -1) => (a: Entry, b: Entry) => {

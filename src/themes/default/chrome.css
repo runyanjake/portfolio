@@ -1,3 +1,14 @@
+/*
+ * Site chrome — the header, the main band, the footer.
+ *
+ * Header, main and footer all span --shell-width, and the reading column
+ * is centered inside it. That is the whole layout idea: the brand sits at
+ * the shell's left edge and the rail hangs under it in the gutter, so the
+ * space between the brand and the column's left edge is doing something
+ * rather than just being empty. The controls sit at the shell's right
+ * edge, the same distance out from the column's right edge, which is what
+ * makes the header read as balanced on a wide monitor.
+ */
 .skip-to-content {
   position: absolute;
   left: var(--space-4);
@@ -26,9 +37,10 @@
 }
 
 .site-header__inner {
-  max-width: var(--wide-width);
+  max-width: var(--shell-width);
   margin: 0 auto;
   padding: var(--space-3) var(--space-6);
+  min-height: var(--header-height);
   display: flex;
   align-items: center;
   gap: var(--space-6);
@@ -50,6 +62,7 @@
   margin: 0;
   padding: 0;
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-4);
 }
 
@@ -63,22 +76,87 @@
   text-decoration: none;
 }
 
+/* The section you are in, so the nav says where you are. */
+.site-header__nav a[aria-current='page'] {
+  color: var(--color-fg);
+}
+
+/* `auto` is what right-justifies the controls: brand and nav keep their
+   natural width at the left, and this eats the rest. */
+.site-header__controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.theme-toggle:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.theme-toggle__icon {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/*
+ * Which icon shows is decided in CSS off the same [data-theme] attribute
+ * as the palette, not in JavaScript — so the correct one is painted on
+ * the first frame instead of corrected after hydration. The icon shows
+ * the scheme you would switch *to*.
+ *
+ * :root carries no data-theme only when the inline script did not run.
+ * Dark is the default in that case, so the sun (switch to light) is the
+ * honest icon, and that is what the bare rule below gives.
+ */
+.theme-toggle__icon--moon {
+  display: none;
+}
+
+:root[data-theme='light'] .theme-toggle__icon--sun {
+  display: none;
+}
+
+:root[data-theme='light'] .theme-toggle__icon--moon {
+  display: block;
+}
+
 .site-main {
   flex: 1;
   width: 100%;
-  max-width: var(--wide-width);
+  max-width: var(--shell-width);
   margin: 0 auto;
   padding: var(--space-8) var(--space-6);
 }
 
 /* `full` widens the shell; `canvas` also drops its padding so a page can
    paint edge to edge. Both mirror [data-width] on .page — see page.css. */
-.site-main[data-width='full'] {
+.site-main[data-width='full'],
+.site-main[data-width='canvas'] {
   max-width: none;
 }
 
 .site-main[data-width='canvas'] {
-  max-width: none;
   padding: 0;
 }
 
@@ -90,7 +168,7 @@
 }
 
 .site-footer__inner {
-  max-width: var(--wide-width);
+  max-width: var(--shell-width);
   margin: 0 auto;
   padding: var(--space-3) var(--space-6);
   text-align: center;

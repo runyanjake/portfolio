@@ -19,9 +19,11 @@
  *   Color:    --color-bg, --color-surface, --color-fg,
  *             --color-fg-muted, --color-fg-subtle,
  *             --color-accent, --color-accent-fg, --color-border,
- *             --color-code-bg, --color-code-fg
+ *             --color-code-bg, --color-code-fg,
+ *             --color-info, --color-warn, --color-danger
  *   Type:     --font-body, --font-heading, --font-mono
- *   Measure:  --content-width, --wide-width
+ *   Measure:  --content-width, --wide-width, --shell-width,
+ *             --rail-width, --rail-gap, --header-height
  *   Rhythm:   --space-1 … --space-16
  *   Shape:    --radius-sm, --radius, --radius-lg,
  *             --shadow-sm, --shadow, --shadow-lg
@@ -39,12 +41,15 @@
  *                 .site-main     [data-width]
  *
  *   Page:         .page          [data-width] [data-style] [data-entry]
+ *                                [data-rail]
  *                 .page__header, .page__title, .page__meta,
  *                 .page__meta-sep, .page__tags, .page__cover,
  *                 .page__link
- *                 .page__toc, .page__toc-title,
- *                 .page__toc-item, .page__toc-item--depth-{2,3}
  *                 .page__body
+ *
+ *   Rail:         .page__rail [data-rail]
+ *     .rail-toc        __title __item __item--depth-{2,3,4}
+ *     .rail-progress   __title __track __fill __value
  *
  *   Listing:      .listing [data-style], .listing__empty
  *     .display-list      __item __link __title __date __excerpt
@@ -53,6 +58,9 @@
  *     .display-gallery   __item __link __figure __image __caption
  *
  *   Blocks (src/render/markdown/blocks.ts):
+ *   Chrome:       .site-header__controls, .theme-toggle
+ *                 .theme-toggle__icon--{sun,moon}
+ *
  *     .callout   .callout--{info,note,warn,danger}, .callout__title
  *     .figure    [data-bleed=none|wide|full], .figure__caption
  *     .gallery   [data-columns=2|3|4]
@@ -65,8 +73,14 @@
  *   Attribute values:
  *     [data-width] = article | wide | full | canvas   — the measure
  *     [data-style] = page | list | cards | grid | gallery
+ *     [data-rail]  = toc | progress   (absent when there is no rail)
  *     [data-entry] = the entry id, e.g. "blog/flux-1" — the hook for
  *                    styling exactly one page
+ *
+ *   Color scheme: [data-theme] = dark | light, on <html>. Set before
+ *                 first paint by the inline script in Document.astro.
+ *                 Every color is a custom property that changes with
+ *                 it, so nothing needs to know which scheme it is in.
  *
  * A theme need not style every block; an unstyled block still renders,
  * it just falls back to plain flow layout.
@@ -82,6 +96,8 @@
 @import "./chrome.css";
 @import "./page.css";
 @import "./listing.css";
+@import "./rail/toc.css";
+@import "./rail/progress.css";
 @import "./displays/list.css";
 @import "./displays/cards.css";
 @import "./displays/grid.css";

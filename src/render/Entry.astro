@@ -3,9 +3,9 @@
  * The rendering engine's front door.
  *
  * Hand it a content entry and it decides everything else: the shell, the
- * measure, the header, the body, and — when the entry is a folder that
- * advertises its contents — the listing of its children. Routes do
- * nothing but find the entry and pass it here; see
+ * measure, the header, the rail, the body, and — when the entry is a
+ * folder that advertises its contents — the listing of its children.
+ * Routes do nothing but find the entry and pass it here; see
  * src/pages/[...slug].astro.
  *
  * Every page on the site is this one component, which is why a section
@@ -14,10 +14,19 @@
  * `style:`, and nowhere else.
  */
 import { render } from 'astro:content';
-import { allEntries, childrenOf, sortEntries, urlOf, type Entry } from '../lib/content';
+import {
+  allEntries,
+  childrenOf,
+  inherited,
+  sortEntries,
+  urlOf,
+  type Entry,
+} from '../lib/content';
 import Document from './Document.astro';
 import Image from './Image.astro';
 import Listing from './Listing.astro';
+import Rail from './Rail.astro';
+import { railIsEmpty, resolveRail } from './rail/spec';
 import type { Item } from './types';
 
 interface Props {
@@ -28,12 +37,13 @@ const { entry } = Astro.props;
 const { title, excerpt, date, author, tags, image, imageAlt, style, width, chrome } = entry.data;
 
 const { Content, headings } = await render(entry);
+const entries = await allEntries();
 
 // A listing shows the folder's direct children. `style: page` never
 // lists, so a folder can hold entries without advertising them.
 let items: Item[] = [];
 if (style !== 'page') {
-  const children = sortEntries(childrenOf(await allEntries(), entry.id), entry.data.sort);
+  const children = sortEntries(childrenOf(entries, entry.id), entry.data.sort);
   items = children.map((child) => ({
     // `link:` sends the card off-site; without it, to the child's page.
     url: child.data.link ?? urlOf(child.id),
@@ -46,6 +56,13 @@ if (style !== 'page') {
   }));
 }
 
+// The rail is inherited, so `rail: toc` on content/blog/index.md gives
+// every post a contents list without eight files repeating it. A listing
+// page gets no rail of its own: progress through a list of links means
+// nothing, and the page's substance is the listing, not its prose.
+const rail = resolveRail(inherited(entries, entry.id, 'rail'));
+const showRail = style === 'page' && !railIsEmpty(rail, headings);
+
 const formattedDate = date
   ? date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -54,15 +71,16 @@ const formattedDate = date
       timeZone: 'UTC',
     })
   : null;
-
-// A table of contents is noise on a short page and navigation on a long
-// one. Three headings is where it starts earning its space.
-const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
-const showToc = tocHeadings.length >= 3;
 ---
 
 <Document title={title} description={excerpt} chrome={chrome} width={width}>
-  <article class="page" data-width={width} data-style={style} data-entry={entry.id}>
+  <article
+    class="page"
+    data-width={width}
+    data-style={style}
+    data-entry={entry.id}
+    data-rail={showRail ? rail.show : undefined}
+  >
     <header class="page__header">
       <h1 class="page__title">{title}</h1>
       {(formattedDate || author) && (
@@ -93,18 +111,7 @@ const showToc = tocHeadings.length >= 3;
       )}
     </header>
 
-    {showToc && (
-      <nav class="page__toc" aria-label="Table of contents">
-        <p class="page__toc-title">On this page</p>
-        <ul>
-          {tocHeadings.map((h) => (
-            <li class={`page__toc-item page__toc-item--depth-${h.depth}`}>
-              <a href={`#${h.slug}`}>{h.text}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    )}
+    {showRail && <Rail spec={rail} headings={headings} />}
 
     <div class="page__body">
       <Content />
