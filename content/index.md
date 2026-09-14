@@ -6,9 +6,8 @@ excerpt: Bay Area software engineer. Homelabs, bikes, and side projects.
 
 Welcome to my personal website!
 
-This is where I keep notes on the things I build — a homelab that has outgrown
-its closet, a cycling channel, and whatever I am currently fixated on. The
-[blog](/blog) has the long-form version, [projects](/projects) has the things
-that ended up with a name.
+I'm a Bay Area native currently living and working in the South Bay. I'm a lover of technology, my many side projects, and the outdoors. Interests of mine include automation, distributed cloud computing, homelabbing, and applications of AI.
+
+I previously worked as a software engineer at [Egnyte](https://www.egnyte.com) on platform infrastructure, developing distributed microservices in the cloud. 
 
 [Reach out](/contact) if you'd like to connect.

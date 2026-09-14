@@ -1,6 +1,6 @@
 ﻿---
 title: Jake's West Coast
-date: 2020-12-07
+date: 2020-04-10
 author: Jake Runyan
 tags: [cycling]
 excerpt: Riding around the peninsula and in the Santa Cruz Mountains.

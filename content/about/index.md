@@ -6,4 +6,4 @@ style: cards
 sort: order
 ---
 
-Learn more about me and the passion projects I work on.
+Learn more about me and find links to my professional and social profiles.

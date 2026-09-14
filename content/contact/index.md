@@ -6,8 +6,11 @@ style: page
 excerpt: How to reach me.
 ---
 
-The best way to reach me is by email. Find me on:
+The best way to reach me is by email at **jake@runyan(dot)dev**.
 
-- GitHub: [runyanjake](https://github.com/runyanjake)
+
+# Other Links
+- GitHub: [Runyanjake](https://github.com/runyanjake)
 - YouTube: [Jake's West Coast](https://www.youtube.com/@jakeswestcoast)
 - Instagram: [@jakeswestcoast](https://instagram.com/jakeswestcoast)
+- Linktree: [Jake Runyan](https://linktr.ee/runyanjake)
