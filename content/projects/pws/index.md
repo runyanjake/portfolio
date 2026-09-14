@@ -1,6 +1,8 @@
 ---
 title: PWS
-order: 2
+date: 2020-12-07
+author: Jake Runyan
+tags: [homelabbing]
 excerpt: A homelabbing project that taught me Linux, hardware, networking, and security.
 ---
 
