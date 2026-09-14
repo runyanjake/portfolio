@@ -219,6 +219,30 @@ Note the four colons on the outer `columns`: a container directive nests inside 
 
 **Typos fail the build.** `:::note` reports the file and lists every block that does exist; writing a container block as `::callout` says so and names the right form. Both exit non-zero — see the `blockCheck()` section of [`DESIGN.md`](DESIGN.md) for why that takes two mechanisms rather than one.
 
+#### Diagrams
+
+Flowcharts and the rest are the one thing here that is *not* a directive. A diagram is a fenced code block tagged `mermaid`, exactly as it is written on GitHub:
+
+````md
+```mermaid
+flowchart LR
+  A[Write markdown] --> B{Needs a picture?}
+  B -- yes --> C[Draw it in the fence]
+  B -- no --> D[Keep writing]
+```
+````
+
+That is deliberate, and it is the same principle as the directives rather than an exception to it. Markdown already has a way to say "here is some source in language X", and GitHub, GitLab and every markdown editor worth using already agree that `mermaid` is that language. Inventing `:::diagram` would mean a diagram renders on the site and nowhere else — not in the repo, not in a preview pane, not in whatever you drafted it in. The syntax that already exists wins.
+
+Everything mermaid can draw works: `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram-v2`, `erDiagram`, `gantt`, `gitGraph`, `mindmap`, `pie` and the rest. Mermaid's own [documentation](https://mermaid.js.org/) is the reference for the syntax inside the fence; the site adds nothing to it and takes nothing away.
+
+Two things to know:
+
+- **Diagrams are drawn in the browser**, not at build time — mermaid lays them out by measuring rendered text, so a static render would mean running a headless browser in CI. A page with a diagram on it is the only kind that downloads mermaid, and it does so lazily.
+- **A broken diagram does not fail the build**, unlike a bad directive. Mermaid parses the fence in the browser, so the check cannot happen where the other ones do. A diagram that does not parse shows mermaid's own error in place of the picture; the page around it is fine.
+
+They follow the color scheme, redrawing when the theme is toggled, and with JavaScript off the fence stays what it looks like — a code block holding the diagram's source.
+
 ### Tier 2 — Co-located component
 
 The escape hatch for a single page that needs to look like nothing else on the site. Put an `.astro` component next to the entry and import it from an `.mdx`:
@@ -313,6 +337,7 @@ Tier 2 is therefore a *maintainability* boundary, not a security one, and none o
 - **`.md` and `.mdx` coexist.** Blocks work in both; only `.mdx` can import a component. Existing content stays `.md`, and there is no reason to convert the archive — rename a file to `.mdx` when it needs Tier 2.
 - **`data-width` means the page measure; `data-bleed` means a block escaping it.** The `bleed` block emits `data-bleed` (matching `figure`) precisely so `data-width` has exactly one meaning.
 - **`node_modules/.astro` caches rendered entries.** If a content change seems not to take, that is where it is. `rm -rf dist .astro node_modules/.astro`.
+- **A mermaid fence is the one block the build does not validate.** It is parsed in the browser, so a syntax error surfaces on the page rather than in `npm run build`. Look at the page, not the build log.
 
 ## Open decisions
 

@@ -47,6 +47,24 @@ h2 { font-size: 1.75rem; }
 h3 { font-size: 1.375rem; }
 h4 { font-size: 1.125rem; }
 
+/*
+ * Where an anchor jump lands.
+ *
+ * Only markdown headings carry an id, so this is exactly the set a
+ * contents entry or a shared #fragment can target. `em` is the
+ * heading's own size, so half a line of air above it scales with the
+ * heading rather than being one fixed gap that looks tight under an h2
+ * and loose under an h4.
+ */
+h1[id],
+h2[id],
+h3[id],
+h4[id],
+h5[id],
+h6[id] {
+  scroll-margin-top: calc(var(--anchor-offset) + 0.625em);
+}
+
 p, ul, ol, blockquote, pre, table {
   margin: 0 0 var(--space-4);
 }

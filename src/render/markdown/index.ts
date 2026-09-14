@@ -15,6 +15,7 @@ import type { AstroIntegration } from 'astro';
 import type { Root } from 'mdast';
 import type { VFile } from 'vfile';
 import { blocks, type DirectiveKind, type DirectiveNode } from './blocks';
+import { MERMAID_LANG, rehypeMermaid } from './mermaid';
 
 const KIND: Record<string, DirectiveKind> = {
   containerDirective: 'container',
@@ -85,8 +86,28 @@ function remarkBlocks() {
   };
 }
 
-/** Passed straight to `markdown.remarkPlugins` in astro.config.mjs. */
+/**
+ * Passed straight to `markdown.remarkPlugins` in astro.config.mjs.
+ * Order matters: remarkDirective has to parse the `:::` syntax before
+ * remarkBlocks can dispatch it.
+ */
 export const markdownPlugins = [remarkDirective, remarkBlocks];
+
+/**
+ * Passed to `markdown.rehypePlugins`. These run on the finished HTML
+ * tree, after Astro's own Shiki pass.
+ */
+export const markdownRehypePlugins = [rehypeMermaid];
+
+/**
+ * Passed to `markdown.syntaxHighlight`.
+ *
+ * A ```mermaid fence is a picture, not a listing, so highlighting it is
+ * work thrown away — and rehypeMermaid wants the fence's text intact
+ * rather than split across a few hundred coloured spans. Astro's
+ * `excludeLangs` is the supported way to say so.
+ */
+export const syntaxHighlight = { type: 'shiki' as const, excludeLangs: [MERMAID_LANG] };
 
 /**
  * Turns a bad block into a failed build.
@@ -115,3 +136,4 @@ export function blockCheck(): AstroIntegration {
 }
 
 export { blocks } from './blocks';
+export { hasMermaid } from './mermaid';

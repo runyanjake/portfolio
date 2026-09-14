@@ -1,0 +1,143 @@
+---
+/**
+ * Turns the ```mermaid fences on this page into diagrams.
+ *
+ * Rendered by Entry.astro only when the entry's body actually contains
+ * one (`hasMermaid`), which is the whole reason this is a component and
+ * not a line in Document.astro: Astro bundles a component's <script>
+ * into the pages that render it, so a post with no diagram downloads no
+ * diagram code. Mermaid is a large library — the dynamic import below
+ * keeps it out of the page's critical path even on the pages that do.
+ *
+ * It is the site's second piece of JavaScript, after the reading-progress
+ * rail, and it earns that the same way: there is no build-time route to
+ * the same result. Mermaid lays diagrams out by measuring rendered text,
+ * so a static render means running a headless browser in CI.
+ *
+ * Without JavaScript the fence stays what the markup says it is — a
+ * <pre> holding the diagram's source, styled as a code block. That is a
+ * legible fallback rather than a hole in the page, which is why the
+ * source is in the document instead of being fetched.
+ */
+---
+
+{/*
+  is:inline, and in the body above .page__body — both deliberate. The
+  parser runs this before it has reached any of the diagrams below it, so
+  the raw source is hidden before it can paint; a bundled module is
+  deferred and would flash the source first. The class comes off again in
+  the `finally` below, so a mermaid failure shows the source rather than
+  swallowing it, and a visitor with JavaScript off never sets it at all.
+*/}
+<script is:inline>
+  document.documentElement.classList.add('mermaid-pending');
+</script>
+
+<script>
+  import type { MermaidConfig } from 'mermaid';
+
+  type Mermaid = typeof import('mermaid').default;
+  type Diagram = { el: HTMLElement; source: string };
+
+  /** Resolved once per session; the chunk is cached after that. */
+  let mermaid: Mermaid | undefined;
+
+  /**
+   * Which run is current. ClientRouter can start a new page before the
+   * previous page's import has settled, and the loser must not paint
+   * into elements that are no longer in the document.
+   */
+  let generation = 0;
+
+  let watching: MutationObserver | undefined;
+
+  /**
+   * Mermaid's palette is baked in at initialize() time, so it cannot be
+   * a set of custom properties that follow [data-theme] on their own —
+   * a theme switch has to re-render. Its two built-in schemes are used
+   * rather than a hand-mapped `base`, because mermaid derives a dozen
+   * shades from each seed color and a partial mapping reads as a bug.
+   * The one thing carried across is the site's own type.
+   */
+  function config(): MermaidConfig {
+    const root = document.documentElement;
+    const token = (name: string) => getComputedStyle(root).getPropertyValue(name).trim() || undefined;
+    return {
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: root.dataset.theme === 'light' ? 'neutral' : 'dark',
+      fontFamily: token('--font-body'),
+      themeVariables: {
+        // Mermaid paints a filled rectangle behind an edge's label in a
+        // color it picked for its own canvas, not ours, which on dark
+        // leaves each label sitting on a grey chip. This is the one
+        // value the site has to supply: everything else the scheme
+        // derives is drawn on top of its own shapes.
+        edgeLabelBackground: token('--color-bg'),
+      },
+    };
+  }
+
+  /**
+   * Render every diagram from its captured source.
+   *
+   * Re-runnable: mermaid replaces the element's contents with the SVG,
+   * so the source has to be put back and `data-processed` cleared before
+   * it will look at the element a second time. That is what makes the
+   * theme switch a re-render rather than a reload.
+   */
+  async function draw(diagrams: Diagram[], run: number) {
+    mermaid ??= (await import('mermaid')).default;
+    if (run !== generation) return;
+
+    mermaid.initialize(config());
+    for (const { el, source } of diagrams) {
+      el.textContent = source;
+      el.removeAttribute('data-processed');
+    }
+    await mermaid.run({ nodes: diagrams.map((d) => d.el) });
+    if (run !== generation) return;
+    for (const { el } of diagrams) el.dataset.mermaidDone = '';
+  }
+
+  async function start() {
+    const run = ++generation;
+    watching?.disconnect();
+    watching = undefined;
+
+    const root = document.documentElement;
+    // Captured before the first render, because after it the element's
+    // text is the SVG's, not the diagram's.
+    const diagrams: Diagram[] = [...document.querySelectorAll<HTMLElement>('pre[data-mermaid]')].map(
+      (el) => ({ el, source: el.textContent ?? '' }),
+    );
+
+    try {
+      if (diagrams.length > 0) await draw(diagrams, run);
+    } catch (error) {
+      console.error('[mermaid] could not render a diagram on this page', error);
+    } finally {
+      if (run === generation) root.classList.remove('mermaid-pending');
+    }
+
+    if (diagrams.length === 0 || run !== generation) return;
+
+    // The palette lives on <html>, and the toggle is delegated from
+    // document in Document.astro, so there is no event to subscribe to —
+    // watching the attribute keeps this component from having to know
+    // the toggle exists.
+    watching = new MutationObserver(() => {
+      draw(diagrams, run).catch((error) => {
+        console.error('[mermaid] could not re-render for the new color scheme', error);
+      });
+    });
+    watching.observe(root, { attributeFilter: ['data-theme'] });
+  }
+
+  // astro:page-load covers the first load and every view transition; the
+  // direct call is for the case where this module evaluates after that
+  // event has already fired. start() supersedes any run in flight, so a
+  // double call is free.
+  document.addEventListener('astro:page-load', start);
+  start();
+</script>

@@ -11,9 +11,10 @@ Static personal site for [jake.runyan.dev](https://jake.runyan.dev), built with 
 - `rail:` puts a table of contents or a reading-progress indicator in the margin, declared once per section and inherited by its entries.
 - Light and dark schemes, dark by default, resolved before first paint; every color is a token, so nothing is left behind by the switch.
 - Custom rendering is vanilla markdown plus generic directives (`:::callout`), not HTML or JSX in the prose.
+- Mermaid diagrams from a ```` ```mermaid ```` fence, the same syntax GitHub takes; drawn in the browser, only on the pages that have one.
 - Swappable CSS themes; a theme is a directory under `src/themes/` and multiple can be layered.
 - Local images run through Astro's image pipeline: responsive `srcset`, WebP, content-hashed filenames.
-- Static output with no client framework — only Astro's View Transitions runtime reaches the browser.
+- Static output with no client framework — Astro's View Transitions runtime, a reading-progress rail, and mermaid on the pages that draw something.
 - Multi-stage Docker build to `nginx:alpine`, deployed behind Traefik by Jenkins.
 
 Architecture: [`.claude/DESIGN.md`](.claude/DESIGN.md). What a page can control, and how far customization goes: [`.claude/AUTHORING.md`](.claude/AUTHORING.md).

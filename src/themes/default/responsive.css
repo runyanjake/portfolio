@@ -1,4 +1,13 @@
 @media (max-width: 720px) {
+  /*
+   * The header wraps here (see .site-header__inner below): the nav takes
+   * a second row, so the sticky band an anchor jump has to clear is a
+   * row of controls plus a row of nav links plus the gap between them.
+   */
+  :root {
+    --anchor-offset: 5.6rem;
+  }
+
   .site-main {
     padding: var(--space-6) var(--space-4);
   }

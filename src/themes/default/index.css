@@ -23,7 +23,8 @@
  *             --color-info, --color-warn, --color-danger
  *   Type:     --font-body, --font-heading, --font-mono
  *   Measure:  --content-width, --wide-width, --shell-width,
- *             --rail-width, --rail-gap, --header-height
+ *             --rail-width, --rail-gap, --header-height,
+ *             --anchor-offset
  *   Rhythm:   --space-1 … --space-16
  *   Shape:    --radius-sm, --radius, --radius-lg,
  *             --shadow-sm, --shadow, --shadow-lg
@@ -69,6 +70,8 @@
  *     .aside     [data-side=left|right]
  *     .steps
  *     .embed
+ *     pre[data-mermaid]  [data-mermaid-done] — a ```mermaid fence
+ *     .mermaid-pending   on <html>, while diagrams are being drawn
  *
  *   Attribute values:
  *     [data-width] = article | wide | full | canvas   — the measure
@@ -110,4 +113,5 @@
 @import "./blocks/bleed.css";
 @import "./blocks/aside.css";
 @import "./blocks/steps.css";
+@import "./blocks/mermaid.css";
 @import "./responsive.css";

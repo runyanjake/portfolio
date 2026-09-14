@@ -25,7 +25,9 @@ import {
 import Document from './Document.astro';
 import Image from './Image.astro';
 import Listing from './Listing.astro';
+import Mermaid from './markdown/Mermaid.astro';
 import Rail from './Rail.astro';
+import { hasMermaid } from './markdown';
 import { railIsEmpty, resolveRail } from './rail/spec';
 import type { Item } from './types';
 
@@ -62,6 +64,11 @@ if (style !== 'page') {
 // nothing, and the page's substance is the listing, not its prose.
 const rail = resolveRail(inherited(entries, entry.id, 'rail'));
 const showRail = style === 'page' && !railIsEmpty(rail, headings);
+
+// Diagrams are drawn in the browser, and mermaid is a large library, so
+// the renderer is included per page rather than site-wide. Asked of the
+// raw body: a page that draws nothing ships no diagram code.
+const showMermaid = hasMermaid(entry.body);
 
 const formattedDate = date
   ? date.toLocaleDateString('en-US', {
@@ -112,6 +119,8 @@ const formattedDate = date
     </header>
 
     {showRail && <Rail spec={rail} headings={headings} />}
+
+    {showMermaid && <Mermaid />}
 
     <div class="page__body">
       <Content />

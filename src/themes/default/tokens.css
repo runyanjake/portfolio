@@ -101,6 +101,20 @@
   --rail-gap: 3.5rem;
   --header-height: 3.25rem;
 
+  /*
+   * How far an anchor jump stops short of the viewport's top.
+   *
+   * The site header is sticky, so scrolling a heading to the very top
+   * parks it *behind* the header and what the reader sees is the
+   * paragraph beneath it — which is what clicking a contents entry used
+   * to do. This is the header's real height (min-height plus its own
+   * padding, one row of controls); base.css adds half a line of the
+   * heading's own type on top, so the heading lands just clear of the
+   * header rather than flush against it. responsive.css raises it where
+   * the header wraps to two rows.
+   */
+  --anchor-offset: 3.5rem;
+
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;

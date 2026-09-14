@@ -143,7 +143,20 @@ Below that width there is no gutter, so the rail stays in normal flow as a card 
 
 A listing page gets no rail: progress through a list of links is meaningless, and the page's substance is the listing. `railIsEmpty()` also suppresses a contents list below `minHeadings`, so a short page leaves no empty box in the margin rather than an empty box.
 
-`Progress.astro` is the only component on the site that ships JavaScript. It measures against `.page__body` rather than the document, because counting the header, title block and footer makes a post read as most-of-the-way-done before the prose starts. Its listeners are re-registered on `astro:page-load` and dropped through an `AbortController` — ClientRouter replaces the body on every navigation, so without that the handlers would accumulate for the length of a browsing session.
+`Progress.astro` is one of the two components on the site that ship JavaScript (`Mermaid.astro` is the other). It measures against `.page__body` rather than the document, because counting the header, title block and footer makes a post read as most-of-the-way-done before the prose starts. Its listeners are re-registered on `astro:page-load` and dropped through an `AbortController` — ClientRouter replaces the body on every navigation, so without that the handlers would accumulate for the length of a browsing session.
+
+### Where a contents entry lands
+
+The site header is sticky, so an anchor jump that puts a heading flush with the viewport's top puts it *behind* the header, and what the reader actually sees is the paragraph underneath. The fix is `scroll-margin-top` on every heading carrying an id — the exact set a contents entry or a shared `#fragment` can target — built from two parts:
+
+```
+--anchor-offset   the sticky band to clear: 3.5rem, the header's
+                  min-height plus its own padding
++ 0.625em         half a line of the heading's own type, so the stop
+                  has some air above it
+```
+
+`em` rather than `rem` is the point of the second term: it resolves against the heading's own font size, so an `h2` gets proportionally more room than an `h4` and one rule covers every level. `responsive.css` raises `--anchor-offset` below 720px, where the header wraps the nav onto a second row and the band to clear is taller.
 
 ## Color scheme
 
@@ -188,6 +201,25 @@ Two things about that integration are load-bearing and easy to undo by accident:
 - **It must not reset its list at `astro:build:start`.** Content rendering happens during the sync that runs *before* that hook, so resetting there throws the failures away before anything reads them. A build is a fresh process; there is nothing to reset.
 - **`node_modules/.astro` is the content cache.** A cached entry is not re-rendered, so its blocks are not re-validated. Editing a file invalidates its entry, so a newly introduced typo is always caught; the Docker build is always cold, so the deploy path always validates everything.
 
+### Diagrams
+
+A fenced code block tagged `mermaid` becomes a diagram. It is the one piece of the markdown vocabulary that is not a directive, because markdown already had a way to write it and GitHub had already picked the language name — a diagram that renders in the repo and in a preview pane and on the site is worth more than a `:::diagram` that renders in one place. `.claude/AUTHORING.md` makes the author-facing case.
+
+The pipeline splits along the same line everything else does. `src/render/markdown/mermaid.ts` does the retag and nothing more, turning the fence into
+
+```html
+<pre class="mermaid" data-mermaid>…source…</pre>
+```
+
+and `src/render/markdown/Mermaid.astro` turns that into an SVG in the browser. Four things about the arrangement are load-bearing:
+
+- **It is a rehype plugin, not a remark one.** The obvious version — `data.hName` on the mdast `code` node — does not work: `mdast-util-to-hast` applies `hName` to the `<code>` it builds and *then* wraps that in a `<pre>`, so the result is a `<pre>` inside a `<pre>`, and the outer element is unreachable from the node. Working on hast means replacing the finished `<pre>` outright, which is the element we actually want.
+- **`syntaxHighlight.excludeLangs` holds Shiki off it.** Astro's supported hook, and it has to be used: otherwise Shiki shreds the source into a few hundred coloured spans before rehype sees it, and the plugin would be reassembling text nobody ever reads as text.
+- **Rendering is client-side, and there was no real alternative.** Mermaid lays diagrams out by measuring rendered text, so "build-time" means a headless browser inside `npm run build` — a Playwright download in the Docker image and a browser process in CI, to save a lazily-imported chunk on the handful of pages that draw something.
+- **The renderer is included per page.** `Entry.astro` asks `hasMermaid(entry.body)` — a regex over the raw body, so the question is a pure function of the file rather than something the cached render has to report back — and Astro bundles a component's `<script>` only into the pages that render it. A post with no diagram on it downloads no diagram code, and mermaid is ~650KB before its per-diagram-type chunks.
+
+Two details in `Mermaid.astro` itself are worth not undoing. Its `is:inline` script hides the fences before the parser reaches them — the same reasoning as the theme script, and the same reason it cannot be bundled — and the class comes back off in a `finally`, so a mermaid failure shows the source rather than swallowing it and a visitor with JavaScript off never sets it at all. And mermaid bakes its palette in at `initialize()`, so it cannot follow `[data-theme]` through custom properties the way the rest of the site does; a `MutationObserver` on the attribute re-renders each diagram from its captured source. Captured, because mermaid replaces the element's contents with the SVG — after the first render the element's text is no longer the diagram.
+
 ## Images
 
 Local images referenced by a relative path go through Astro's image pipeline and come out as responsive `srcset` sets in WebP with content-hashed filenames — from `content/`, outside `src/`, same as before. Absolute paths point at `public/` and are served untouched. Remote URLs are not processed.
@@ -221,5 +253,6 @@ The health check probes nginx from inside the container. It deliberately does no
 | A nav link | Add `nav:` to that entry's frontmatter. |
 | A display | `src/render/displays/<Name>.astro` taking `items: Item[]`, one entry in `Listing.astro`'s map, one value in the `style` enum, one CSS partial. |
 | A block | One entry in `src/render/markdown/blocks.ts`, one CSS partial under the theme's `blocks/`. |
+| A diagram | A ```` ```mermaid ```` fence in the body. Nothing to register. |
 | A one-off page look | Co-locate an `.astro` component beside the entry and import it from an `.mdx`. Styles are auto-scoped; see [`AUTHORING.md`](AUTHORING.md) tier 2. |
 | A theme | Copy `src/themes/default/`, edit, point `theme` in `src/site.config.ts` at the new directory name. |

@@ -1,6 +1,11 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import { blockCheck, markdownPlugins } from './src/render/markdown';
+import {
+  blockCheck,
+  markdownPlugins,
+  markdownRehypePlugins,
+  syntaxHighlight,
+} from './src/render/markdown';
 
 export default defineConfig({
   site: 'https://jake.runyan.dev',
@@ -20,6 +25,10 @@ export default defineConfig({
     // it. @astrojs/mdx inherits this config, so .md and .mdx bodies get
     // the same blocks.
     remarkPlugins: markdownPlugins,
+    rehypePlugins: markdownRehypePlugins,
+    // Leaves ```mermaid fences alone for markdownRehypePlugins to turn
+    // into diagrams; see src/render/markdown/mermaid.ts.
+    syntaxHighlight,
     shikiConfig: {
       theme: 'github-dark-dimmed',
     },

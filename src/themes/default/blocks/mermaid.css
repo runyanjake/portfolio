@@ -1,0 +1,40 @@
+/*
+ * Mermaid diagrams.
+ *
+ * A diagram arrives as a <pre> holding its own source, so before the
+ * renderer has run — and forever, with JavaScript off — it is a code
+ * block and inherits base.css's treatment untouched. Nothing here
+ * applies until [data-mermaid-done] says the <pre> is an SVG now, at
+ * which point the code-block chrome comes off: a diagram on a dark slab
+ * reads as a screenshot pasted into the page rather than as a picture
+ * the page drew.
+ */
+.mermaid-pending pre[data-mermaid] {
+  /* Hidden, not display:none — the space is held, so a diagram
+     appearing does not shove the rest of the page down. Removed in
+     Mermaid.astro's `finally`, so a failed render shows the source. */
+  visibility: hidden;
+}
+
+pre[data-mermaid][data-mermaid-done] {
+  background: none;
+  color: inherit;
+  padding: 0;
+  text-align: center;
+  /* A wide diagram scrolls inside its own box rather than widening the
+     page, the same bargain tables and code blocks make. */
+  overflow-x: auto;
+}
+
+pre[data-mermaid][data-mermaid-done] svg {
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+/* Mermaid's own styles are scoped to the svg, but it leaves the canvas
+   to the page, and both of its schemes assume one. */
+pre[data-mermaid][data-mermaid-done] .messageText,
+pre[data-mermaid][data-mermaid-done] .labelText {
+  fill: currentColor;
+}
