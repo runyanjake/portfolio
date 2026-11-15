@@ -1,5 +1,5 @@
 ---
-title: PWS
+title: PWS - A Homelabbing Journey
 date: 2020-12-07
 author: Jake Runyan
 tags: [homelabbing]
