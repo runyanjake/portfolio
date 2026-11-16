@@ -5,6 +5,7 @@ author: Jake Runyan
 tags: [website, cooking]
 excerpt: A passion project combining my web design hobby and my passion for trying new recipes. 
 sidebar: headers
+cover: "./recipes-v1.png"
 ---
 
 The biggest pain point I've felt when trying a new recipe is navigating the recipe page. So many Squ*respace-templated websites appear to have turned the advertising knob to 11 *(completely understandable btw, money is money)*, at the expense of user experience and information density. 

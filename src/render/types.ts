@@ -17,4 +17,6 @@ export interface Item {
   date?: Date;
   image?: ImageMetadata | string;
   imageAlt?: string;
+  /** The `list` display's thumbnail, cropped to the cover ratio. */
+  cover?: ImageMetadata | string;
 }

@@ -53,6 +53,7 @@ author: Jake Runyan
 tags: [ai, image-gen]
 image: ./hero.jpg             # relative path, or an absolute URL
 imageAlt: A generated image
+cover: ./hero.jpg             # thumbnail in a parent's `list`, cropped to 3:2
 link: https://example.com     # sends this entry's listing card off-site
 order: 2                      # position under `sort: order`
 draft: true                   # excluded from the build entirely
@@ -79,6 +80,18 @@ Every value renders the entry's own prose. The non-`page` values then append a l
 **`cards` covers both the picture kind and the picture-less kind.** `content/about/` and `content/friends/` use the same style; the friends just have an `image:` each. The thumbnail is a fixed square at the start of the card rather than a banner across the top, so cards with and without one sit in the same grid without the row going ragged.
 
 **`link:` sends a card off-site.** A friend's card points at their site. The entry still has its own page, which shows the link — so `content/friends/tyler-k/index.md` can carry as much or as little prose as you like without changing where the card goes.
+
+#### `cover` — the picture in a `list`
+
+`cover:` is the thumbnail on the left of an entry's row when its parent
+uses `style: list`. It is separate from `image:`, which is the cover on
+the entry's own page and the picture in `cards`. A post can have a list
+thumbnail without a banner image at the top of the post.
+
+Every cover is shown at the same 3:2 ratio. The image is center-cropped
+with `object-fit: cover`, which trims only the axis that overflows. The
+ratio and width are `--list-cover-ratio` and `--list-cover-width` in
+`displays/list.css`. Without a `cover:` the row is text only.
 
 #### `sort` — the order children appear in
 

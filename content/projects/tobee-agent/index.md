@@ -5,6 +5,7 @@ author: Jake Runyan
 tags: [ai, agents]
 excerpt: A general purpose agent framework themed after our old family cat, Tobee.
 sidebar: progress
+cover: "./conversation.png"
 ---
 
 TOBEE is a custom agent harness I wrote to provide personal assistant capabilities on top of fronteir local LLMs, to break dependencies on managed inference, minimize costs, and to explore the practical applications of agent architecture.

@@ -5,6 +5,7 @@ author: Jake Runyan
 tags: [engineering, nginx]
 excerpt: A writeup I did for the Egnyte engineering blog about an edge caching project of mine, which I built and managed until I left the company in 2025.
 sidebar: headers
+cover: "https://www.egnyte.com/blog/sites/default/files/inline-images/6202e78df92686b5d8a32379_2.%20ApiCacheUMLJake.png"
 ---
 
 **Note: The original version of this blog post was published on the [Egnyte Engineering Blog](https://www.egnyte.com/blog/post/a-proof-of-concept-for-api-caching-at-egnyte) in 2022. I am reposting the content as the original author on my personal website. All content and images on page are owned by Egnyte. Images are linked to the Egnyte source.**

@@ -1,8 +1,14 @@
 ---
 /**
  * Dated entries, newest first — the shape a blog or a project log wants.
- * Title, date, excerpt, one per row.
+ * Title, date, excerpt, one per row, with the entry's `cover:` as a
+ * thumbnail on the left when it has one.
+ *
+ * The thumbnail box has a fixed aspect ratio (see list.css) and the
+ * image is center-cropped into it with object-fit, so a wide screenshot
+ * and a tall photo come out the same size and the rows stay aligned.
  */
+import Image from '../Image.astro';
 import type { Item } from '../types';
 
 interface Props {
@@ -20,15 +26,28 @@ const formatDate = (d: Date) =>
       <a
         href={item.url}
         class="display-list__link"
+        data-cover={item.cover ? '' : undefined}
         rel={item.external ? 'noopener' : undefined}
       >
-        <h2 class="display-list__title">{item.title}</h2>
-        {item.date && (
-          <time class="display-list__date" datetime={item.date.toISOString()}>
-            {formatDate(item.date)}
-          </time>
+        {item.cover && (
+          <div class="display-list__cover">
+            <Image
+              src={item.cover}
+              alt=""
+              widths={[160, 320, 480]}
+              sizes="(min-width: 560px) 160px, 96px"
+            />
+          </div>
         )}
-        {item.excerpt && <p class="display-list__excerpt">{item.excerpt}</p>}
+        <div class="display-list__body">
+          <h2 class="display-list__title">{item.title}</h2>
+          {item.date && (
+            <time class="display-list__date" datetime={item.date.toISOString()}>
+              {formatDate(item.date)}
+            </time>
+          )}
+          {item.excerpt && <p class="display-list__excerpt">{item.excerpt}</p>}
+        </div>
       </a>
     </li>
   ))}

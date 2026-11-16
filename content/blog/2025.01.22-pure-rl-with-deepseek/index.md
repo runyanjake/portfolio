@@ -5,6 +5,7 @@ author: Jake Runyan
 tags: [ai, llm, deepseek, openwebui]
 excerpt: Trying out DeepSeek-r1 locally with OpenWebUI and Ollama.
 sidebar: headers
+cover: "https://images.whitney.rip/api/assets/b5817baf-631e-4fa0-a456-8c45f0dd93d0/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=5Hts56p%2B%2BrreaZ3B2WXOaHSF%2BeI%3D"
 ---
 
 So apparently pure reinforcement learning is the move. The new DeepSeek models out of China throw modern LLM training

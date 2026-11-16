@@ -132,6 +132,7 @@ author: Jake Runyan
 tags: [ai, agents]
 excerpt: One-line blurb for the listing and the meta description.
 sidebar: headers
+cover: ./hero.jpg
 ---
 
 Body in markdown.
@@ -158,6 +159,20 @@ sidebar: none        # same as leaving it out
 - **Listing pages never show one.** A page with a `style:` other than `page` (such as `content/blog/index.md`) ignores `sidebar:`.
 - **Any other value fails the build**, with the file and the allowed values in the error.
 - On a wide screen the sidebar sticks in the left margin. On a narrow one it folds into a card above the content.
+
+### The cover
+
+`cover:` is the picture beside a page's row in its section's list (`/blog`, `/projects`). It only appears in the list, not on the page itself.
+
+```yaml
+cover: ./hero.jpg                          # an image in the page's own folder
+cover: "https://example.com/picture.png"   # or an image hosted elsewhere
+```
+
+- **Every cover is the same shape.** The thumbnail is a fixed 3:2 box, 160px wide (96px on phones). The image is cropped to fit from its center, so only the overflowing edges are trimmed: the sides of a wide screenshot, or the top and bottom of a tall photo.
+- **Leave it out for no picture.** The row shows just the title, date and excerpt.
+- **Reusing the post's first image works well.** That is what the existing posts do.
+- **A bad path fails the build.** A local file that doesn't exist is an error, not a broken image.
 
 ### Adding a section
 

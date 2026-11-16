@@ -5,6 +5,7 @@ author: Jake Runyan
 tags: [cycling]
 excerpt: Riding around the peninsula and in the Santa Cruz Mountains.
 sidebar: progress
+cover: "./youtube-page.png"
 ---
 
 ![Jake's West Coast](./youtube-page.png)

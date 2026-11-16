@@ -1,4 +1,7 @@
 .display-list {
+  /* The cover thumbnail: one ratio for every row, narrower on phones. */
+  --list-cover-ratio: 3 / 2;
+  --list-cover-width: 160px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -15,6 +18,39 @@
   display: block;
   padding: var(--space-4) 0;
   color: inherit;
+}
+
+/*
+ * A row with a cover: thumbnail on the left, text beside it. The cover
+ * box fixes the ratio and object-fit crops the image into it from the
+ * center, which trims only the axis that overflows — the least of the
+ * picture that can be lost while every row stays the same height.
+ */
+.display-list__link[data-cover] {
+  display: grid;
+  grid-template-columns: var(--list-cover-width) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.display-list__cover {
+  aspect-ratio: var(--list-cover-ratio);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--color-border);
+}
+
+.display-list__cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform var(--transition);
+}
+
+.display-list__link:hover .display-list__cover img {
+  transform: scale(1.03);
 }
 
 .display-list__link:hover {
@@ -40,4 +76,14 @@
 .display-list__excerpt {
   margin: var(--space-2) 0 0;
   color: var(--color-fg-muted);
+}
+
+@media (max-width: 559px) {
+  .display-list {
+    --list-cover-width: 96px;
+  }
+
+  .display-list__link[data-cover] {
+    gap: var(--space-3);
+  }
 }

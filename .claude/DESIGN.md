@@ -43,6 +43,7 @@ The relative-image question resolves in favor of the move too. Images referenced
 | `excerpt` | string | Blurb in listings; `<meta name="description">` on the page. |
 | `date`, `author`, `tags[]` | | Bibliographic. Rendered when present. |
 | `image`, `imageAlt` | path or URL | The entry's one picture: its cover, and its thumbnail in a parent's listing. |
+| `cover` | path or URL | The entry's thumbnail in a parent's `list`, center-cropped to 3:2. |
 | `link` | URL | Points the entry's listing card off-site. |
 | `order` | number | Position under `sort: order`. |
 | `draft` | boolean | Excluded from the build entirely. |

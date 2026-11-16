@@ -5,6 +5,7 @@ author: Jake Runyan
 tags: [ai, agents]
 excerpt: A completely self-hosted news aggregator that aggregates news headlines using a custom embedding algorithm into a once-a-day generated report. 
 sidebar: progress
+cover: "./headline.png"
 ---
 
 PWS News is a public news aggregator that tracks stories across multiple news sources and presents them to the viewer in a grok-able way. It is built to be self-sufficient, relying only on self-hosted LLMs for inference and embeddings. It is a live service deployed on [PWS](/projects/pws), my homelab.

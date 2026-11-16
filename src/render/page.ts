@@ -90,6 +90,7 @@ function listingOf(entry: Entry, entries: Entry[]): Item[] {
     date: child.data.date,
     image: child.data.image,
     imageAlt: child.data.imageAlt,
+    cover: child.data.cover,
   }));
 }
 

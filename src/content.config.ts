@@ -48,6 +48,14 @@ const content = defineCollection({
       image: z.union([image(), z.string().url()]).optional(),
       imageAlt: z.string().optional(),
 
+      /**
+       * The entry's preview picture in a parent's `list` listing: a
+       * thumbnail on the left of its row, center-cropped to a fixed 3:2.
+       * A relative path goes through the asset pipeline; an absolute URL
+       * is used as-is. Unset, the row has no picture.
+       */
+      cover: z.union([image(), z.string().url()]).optional(),
+
       /** Points the entry's listing card at somewhere off-site. */
       link: z.string().url().optional(),
 
