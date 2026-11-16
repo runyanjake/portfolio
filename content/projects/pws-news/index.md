@@ -16,3 +16,4 @@ Given the static nature of its content, this website takes an aggressive caching
 1. [PWS News](https://news.whitney.rip)
 2. [2026/11/14 Blog Post](/blog/2026.11.14-pws-news)
 3. [PWS News Archive](https://news.whitney.rip/archive)
+4. [PWS News Github](https://github.com/runyanjake/news)

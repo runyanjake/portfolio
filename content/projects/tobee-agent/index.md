@@ -14,6 +14,6 @@ It currently features multi-user support through a Discord integration, exposes 
 
 ## Links
 1. [2026/09/15 Blog Post](/blog/2026.09.15-tobee-harness)
-2. [TOBEE Github Repo](https://github.com/runyanjake/tobee)
+2. [TOBEE Github Repository](https://github.com/runyanjake/tobee)
 
 

@@ -15,4 +15,5 @@ It is designed this as a content-driven web framework, rendering markdown as web
 ## Links
 1. [PWS Recipes](https://recipes.whitney.rip)
 2. [2026/02/08 Blog Post](/blog/2026.02.08-pws-recipes)
+3. [PWS Recipes Github Repository](https://github.com/runyanjake/cooking)
 

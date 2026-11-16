@@ -15,5 +15,6 @@ This page has chronicled my progression through various styles of riding, and th
 ## Links
 
 1. [Jake's West Coast YouTube Channel](https://www.youtube.com/@jakeswestcoast)
-2. [2020/04/10 Blog Post](/blog/2020-04-10-jakeswestcoast)
-
+2. [Jake's West Coast Website](https://jakeswestcoast.com)
+3. [2020/04/10 Blog Post](/blog/2020-04-10-jakeswestcoast)
+4. [Github Repository](https://github.com/runyanjake/jakeswestcoast)
