@@ -49,7 +49,7 @@ The relative-image question resolves in favor of the move too. Images referenced
 | `nav` | number or `{order, label}` | Put this entry in the site nav. |
 | `style` | enum | What the page renders as. See below. |
 | `sort` | enum | Order of the children a listing shows. |
-| `rail` | enum or object | What goes in the margin. Inherited by descendants. |
+| `sidebar` | enum | What goes beside the page: `headers`, `progress`, or `none` (also `None`, `""`, unset). |
 | `width`, `chrome` | enum | Presentation switches. See [`AUTHORING.md`](AUTHORING.md). |
 
 `image` is a union: a relative path resolves through `image()` and the asset pipeline, an absolute URL is emitted as-is. That is what lets one `cards` display serve both a folder of essays and a folder of friends whose avatars are hosted elsewhere.
@@ -72,11 +72,12 @@ Nothing here knows what a page looks like.
 
 | File | Job |
 |---|---|
-| `Entry.astro` | The front door. Takes an entry, renders the whole page. |
+| `page.ts` | `Page`, the one data type every entry renders from, and `buildPage()`, which resolves it. |
+| `Entry.astro` | The front door. Takes an entry, builds its `Page`, lays it out. |
 | `Document.astro` | `<html>`, `<head>`, chrome, the `#main-content` landmark. |
 | `Header.astro`, `Footer.astro` | Site chrome. The header's nav comes from the content tree. |
 | `Listing.astro` | A folder's children, in the shape `style:` asks for. |
-| `Rail.astro`, `rail/*` | The margin column: a contents list, or reading progress. |
+| `Sidebar.astro`, `sidebar/*` | The margin column: section headers, or reading progress. |
 | `ThemeToggle.astro` | The light/dark button. Markup only — see below. |
 | `displays/*.astro` | The four shapes. Each takes `items: Item[]` and nothing else. |
 | `Image.astro` | Local `ImageMetadata` → `<Image>`; remote URL → plain `<img>`. |
@@ -123,25 +124,27 @@ Every page defaults to `width: article` — the `--content-width` measure, cente
 The desktop layout rests on one equation, in `tokens.css`:
 
 ```
---shell-width = --content-width + 2 x (--rail-width + --rail-gap) + 2 x --space-6
+--shell-width = --content-width + 2 x (--sidebar-width + --sidebar-gap) + 2 x --space-6
       1280px  =       720       + 2 x (    200      +     56    ) + 2 x   24
 ```
 
-Header, main and footer all span `--shell-width`; the reading column is centered inside it. Because the equation balances exactly, the gutter left beside the centered column is *precisely* one rail wide — so the rail's left edge lands on the same pixel as the brand above it, and the brand sits as far from the column as the controls sit on the other side.
+Header, main and footer all span `--shell-width`; the reading column is centered inside it. Because the equation balances exactly, the gutter left beside the centered column is *precisely* one sidebar wide — so the sidebar's left edge lands on the same pixel as the brand above it, and the brand sits as far from the column as the controls sit on the other side.
 
 That is the fix for the header looking off-balance. It was not that the content was off-center — it was centered all along. The problem was a 1100px header band around a 720px column, which put the brand ~190px out from the text with nothing aligned to it and nothing in the space. Giving the gutter a job and sizing the shell to fit it exactly is what makes the arrangement read as deliberate.
 
-Media queries cannot read custom properties, so the literal `1280px` appears in `page.css` and `rail/toc.css` as well. Those three numbers move together; the token comment says so.
+Media queries cannot read custom properties, so the literal `1280px` appears in `page.css` and `sidebar/headers.css` as well. Those three numbers move together; the token comment says so.
 
-## The rail
+## The sidebar
 
-`rail:` puts a table of contents or a reading-progress indicator in the margin. It is the only **inherited** field: `inherited()` in `src/lib/content.ts` walks from an entry up through its ancestors and returns the nearest value, so `rail: toc` on `content/blog/index.md` reaches every post in the folder. Nearest wins, and `rail: none` opts a subtree back out.
+Every entry — post, project, section index, home page — becomes one `Page` (`src/render/page.ts`). `buildPage()` renders the markdown and resolves everything else up front: the header fields, the listing of children, whether mermaid is needed, and the sidebar. `Entry.astro` only lays the result out.
 
-At `--shell-width` and above the rail is absolutely positioned into the gutter with a sticky inner element. The sticky is on the *inner* element, not the rail: the rail spans the article's full height, which gives the sticky child room to travel and stops it at the end of the page instead of trailing over the footer.
+`sidebar:` is `headers`, `progress`, or `none`. The schema normalises `None`, an empty value and a missing field to `none`, so the renderer sees exactly three values. It is per-entry, not inherited: each post and project declares its own.
 
-Below that width there is no gutter, so the rail stays in normal flow as a card above the content. Same markup, one media query — there is no second component and no JS measuring anything.
+`resolveSidebar()` turns that into a discriminated union. A listing page always resolves to `none`, and so does `headers` on a page with fewer than three `h2`/`h3` headings, so the renderer never emits an empty box. Adding a kind is a component under `sidebar/`, a value in `sidebar/kinds.ts`, and a case in `resolveSidebar()`.
 
-A listing page gets no rail: progress through a list of links is meaningless, and the page's substance is the listing. `railIsEmpty()` also suppresses a contents list below `minHeadings`, so a short page leaves no empty box in the margin rather than an empty box.
+At `--shell-width` and above the sidebar is absolutely positioned into the gutter with a sticky inner element. The sticky is on the *inner* element, not the sidebar: the sidebar spans the article's full height, which gives the sticky child room to travel and stops it at the end of the page instead of trailing over the footer.
+
+Below that width there is no gutter, so the sidebar stays in normal flow as a card above the content. Same markup, one media query — there is no second component and no JS measuring anything.
 
 `Progress.astro` is one of the two components on the site that ship JavaScript (`Mermaid.astro` is the other). It measures against `.page__body` rather than the document, because counting the header, title block and footer makes a post read as most-of-the-way-done before the prose starts. Its listeners are re-registered on `astro:page-load` and dropped through an `AbortController` — ClientRouter replaces the body on every navigation, so without that the handlers would accumulate for the length of a browsing session.
 

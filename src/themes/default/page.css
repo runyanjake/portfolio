@@ -5,7 +5,7 @@
  *
  * The column is centered in the shell rather than left-aligned in it, so
  * the prose is centered on screen; `position: relative` is what lets the
- * rail hang in the gutter beside it.
+ * sidebar hang in the gutter beside it.
  */
 .page {
   max-width: var(--content-width);
@@ -86,13 +86,13 @@
 }
 
 /*
- * The rail.
+ * The sidebar.
  *
  * Narrow first: a card above the content, which is also what a page gets
  * at any width when it is too wide to leave a gutter. The media query
  * below is the enhancement, not the baseline.
  */
-.page__rail {
+.page__sidebar {
   display: block;
   margin-bottom: var(--space-6);
 }
@@ -100,25 +100,25 @@
 /*
  * 1280px is --shell-width, and that is exactly the point. At or above
  * it the shell is capped, so the gutter beside the centered column is
- * always precisely --rail-width + --rail-gap and the rail lands flush
+ * always precisely --sidebar-width + --sidebar-gap and the sidebar lands flush
  * with the brand. Below it the shell is narrower than the equation in
- * tokens.css assumes, the gutter shrinks, and the rail would hang off
+ * tokens.css assumes, the gutter shrinks, and the sidebar would hang off
  * the left edge — so it folds inline instead.
  */
 @media (min-width: 1280px) {
-  .page[data-width='article'] > .page__rail {
+  .page[data-width='article'] > .page__sidebar {
     position: absolute;
     inset-block: 0;
     /* Out into the gutter, so the column itself stays centered. */
-    left: calc(-1 * (var(--rail-width) + var(--rail-gap)));
-    width: var(--rail-width);
+    left: calc(-1 * (var(--sidebar-width) + var(--sidebar-gap)));
+    width: var(--sidebar-width);
     margin-bottom: 0;
   }
 
-  /* Sticky on the inner element, not the rail: the rail spans the whole
+  /* Sticky on the inner element, not the sidebar: the sidebar spans the whole
      article so the sticky child is free to travel its full height and
      stops at the end of the page rather than trailing into the footer. */
-  .page[data-width='article'] > .page__rail > * {
+  .page[data-width='article'] > .page__sidebar > * {
     position: sticky;
     top: calc(var(--header-height) + var(--space-6));
   }

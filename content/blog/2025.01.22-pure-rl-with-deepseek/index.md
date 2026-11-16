@@ -4,6 +4,7 @@ date: 2025-01-22
 author: Jake Runyan
 tags: [ai, llm, deepseek, openwebui]
 excerpt: Trying out DeepSeek-r1 locally with OpenWebUI and Ollama.
+sidebar: headers
 ---
 
 So apparently pure reinforcement learning is the move. The new DeepSeek models out of China throw modern LLM training

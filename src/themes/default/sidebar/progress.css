@@ -2,14 +2,14 @@
  * Reading progress.
  *
  * A horizontal bar in both positions rather than a vertical one in the
- * gutter: it needs no orientation switch, and at --rail-width a
+ * gutter: it needs no orientation switch, and at --sidebar-width a
  * horizontal track is wide enough to read at a glance.
  */
-.rail-progress {
+.sidebar-progress {
   font-size: 0.9rem;
 }
 
-.rail-progress__title {
+.sidebar-progress__title {
   margin: 0 0 var(--space-2);
   font-weight: 600;
   text-transform: uppercase;
@@ -18,14 +18,14 @@
   color: var(--color-fg-subtle);
 }
 
-.rail-progress__track {
+.sidebar-progress__track {
   height: 4px;
   border-radius: 999px;
   background: var(--color-border);
   overflow: hidden;
 }
 
-.rail-progress__fill {
+.sidebar-progress__fill {
   height: 100%;
   inline-size: 0;
   border-radius: inherit;
@@ -34,7 +34,7 @@
      on every frame, and easing it would make it lag the scroll. */
 }
 
-.rail-progress__value {
+.sidebar-progress__value {
   margin: var(--space-2) 0 0;
   color: var(--color-fg-subtle);
   font-size: 0.8rem;

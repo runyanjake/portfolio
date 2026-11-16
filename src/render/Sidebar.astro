@@ -1,0 +1,27 @@
+---
+/**
+ * The sidebar beside a page.
+ *
+ * On a wide screen it sits in the left gutter, aligned with the brand in
+ * the header above it, and sticks as the reader scrolls. Below the width
+ * where the gutter can hold it, it folds into a card above the content.
+ * Both are the same markup — see the theme's sidebar partials.
+ *
+ * Adding a sidebar kind is a component under sidebar/, one value in
+ * sidebar/kinds.ts, and one case in `resolveSidebar()` in page.ts.
+ */
+import type { Sidebar } from './page';
+import Headers from './sidebar/Headers.astro';
+import Progress from './sidebar/Progress.astro';
+
+interface Props {
+  sidebar: Exclude<Sidebar, { kind: 'none' }>;
+}
+
+const { sidebar } = Astro.props;
+---
+
+<aside class="page__sidebar" data-sidebar={sidebar.kind}>
+  {sidebar.kind === 'headers' && <Headers title={sidebar.title} headings={sidebar.headings} />}
+  {sidebar.kind === 'progress' && <Progress title={sidebar.title} />}
+</aside>

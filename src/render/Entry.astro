@@ -2,73 +2,32 @@
 /**
  * The rendering engine's front door.
  *
- * Hand it a content entry and it decides everything else: the shell, the
- * measure, the header, the rail, the body, and — when the entry is a
- * folder that advertises its contents — the listing of its children.
- * Routes do nothing but find the entry and pass it here; see
- * src/pages/[...slug].astro.
+ * Hand it a content entry and it renders the whole page. Every decision
+ * about what the page contains — the sidebar, the listing, whether it
+ * needs the diagram renderer — is made by `buildPage()` in ./page.ts;
+ * this component only lays out the resulting `Page`. Routes do nothing
+ * but find the entry and pass it here; see src/pages/[...slug].astro.
  *
  * Every page on the site is this one component, which is why a section
- * index, a blog post and the home page all carry the same reading
- * column, the same title treatment and the same chrome. They differ in
- * `style:`, and nowhere else.
+ * index, a blog post, a project and the home page all carry the same
+ * reading column, the same title treatment and the same chrome. They
+ * differ in `style:` and `sidebar:`, and nowhere else.
  */
-import { render } from 'astro:content';
-import {
-  allEntries,
-  childrenOf,
-  inherited,
-  sortEntries,
-  urlOf,
-  type Entry,
-} from '../lib/content';
+import type { Entry as ContentEntry } from '../lib/content';
 import Document from './Document.astro';
 import Image from './Image.astro';
 import Listing from './Listing.astro';
 import Mermaid from './markdown/Mermaid.astro';
-import Rail from './Rail.astro';
-import { hasMermaid } from './markdown';
-import { railIsEmpty, resolveRail } from './rail/spec';
-import type { Item } from './types';
+import Sidebar from './Sidebar.astro';
+import { buildPage } from './page';
 
 interface Props {
-  entry: Entry;
+  entry: ContentEntry;
 }
 
-const { entry } = Astro.props;
-const { title, excerpt, date, author, tags, image, imageAlt, style, width, chrome } = entry.data;
-
-const { Content, headings } = await render(entry);
-const entries = await allEntries();
-
-// A listing shows the folder's direct children. `style: page` never
-// lists, so a folder can hold entries without advertising them.
-let items: Item[] = [];
-if (style !== 'page') {
-  const children = sortEntries(childrenOf(entries, entry.id), entry.data.sort);
-  items = children.map((child) => ({
-    // `link:` sends the card off-site; without it, to the child's page.
-    url: child.data.link ?? urlOf(child.id),
-    external: child.data.link !== undefined,
-    title: child.data.title,
-    excerpt: child.data.excerpt,
-    date: child.data.date,
-    image: child.data.image,
-    imageAlt: child.data.imageAlt,
-  }));
-}
-
-// The rail is inherited, so `rail: toc` on content/blog/index.md gives
-// every post a contents list without eight files repeating it. A listing
-// page gets no rail of its own: progress through a list of links means
-// nothing, and the page's substance is the listing, not its prose.
-const rail = resolveRail(inherited(entries, entry.id, 'rail'));
-const showRail = style === 'page' && !railIsEmpty(rail, headings);
-
-// Diagrams are drawn in the browser, and mermaid is a large library, so
-// the renderer is included per page rather than site-wide. Asked of the
-// raw body: a page that draws nothing ships no diagram code.
-const showMermaid = hasMermaid(entry.body);
+const page = await buildPage(Astro.props.entry);
+const { Content, title, excerpt, date, author, tags, image, imageAlt, link, style, width, chrome, sidebar } =
+  page;
 
 const formattedDate = date
   ? date.toLocaleDateString('en-US', {
@@ -85,8 +44,8 @@ const formattedDate = date
     class="page"
     data-width={width}
     data-style={style}
-    data-entry={entry.id}
-    data-rail={showRail ? rail.show : undefined}
+    data-entry={page.id}
+    data-sidebar={sidebar.kind === 'none' ? undefined : sidebar.kind}
   >
     <header class="page__header">
       <h1 class="page__title">{title}</h1>
@@ -111,21 +70,21 @@ const formattedDate = date
           widths={[640, 960, 1280]}
         />
       )}
-      {entry.data.link && (
+      {link && (
         <p class="page__link">
-          <a href={entry.data.link} rel="noopener">{new URL(entry.data.link).hostname}</a>
+          <a href={link} rel="noopener">{new URL(link).hostname}</a>
         </p>
       )}
     </header>
 
-    {showRail && <Rail spec={rail} headings={headings} />}
+    {sidebar.kind !== 'none' && <Sidebar sidebar={sidebar} />}
 
-    {showMermaid && <Mermaid />}
+    {page.mermaid && <Mermaid />}
 
     <div class="page__body">
       <Content />
     </div>
 
-    {style !== 'page' && <Listing style={style} items={items} />}
+    {page.listing && style !== 'page' && <Listing style={style} items={page.listing} />}
   </article>
 </Document>

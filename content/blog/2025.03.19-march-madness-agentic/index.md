@@ -4,6 +4,7 @@ date: 2025-03-19
 author: Jake Runyan
 tags: [ai, agents, sports]
 excerpt: Filling out an NCAA bracket with an LLM and advanced metrics.
+sidebar: headers
 ---
 
 It's that time of year again, and once again, I haven't been as good as I hoped to about keeping up to date with NCAA Men's basketball.

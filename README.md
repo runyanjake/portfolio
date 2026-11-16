@@ -8,13 +8,13 @@ Static personal site for [jake.runyan.dev](https://jake.runyan.dev), built with 
 - The content tree is the route table: a folder's path is its URL, and `content/index.md` is the home page.
 - One frontmatter schema, validated at build time; an invalid value fails the build rather than rendering wrong.
 - Every page picks its own shape with `style:` — prose, or prose plus a `list`, `cards`, `grid` or `gallery` of its children.
-- `rail:` puts a table of contents or a reading-progress indicator in the margin, declared once per section and inherited by its entries.
+- `sidebar:` puts the page's section headers or a reading-progress indicator beside it, chosen per page.
 - Light and dark schemes, dark by default, resolved before first paint; every color is a token, so nothing is left behind by the switch.
 - Custom rendering is vanilla markdown plus generic directives (`:::callout`), not HTML or JSX in the prose.
 - Mermaid diagrams from a ```` ```mermaid ```` fence, the same syntax GitHub takes; drawn in the browser, only on the pages that have one.
 - Swappable CSS themes; a theme is a directory under `src/themes/` and multiple can be layered.
 - Local images run through Astro's image pipeline: responsive `srcset`, WebP, content-hashed filenames.
-- Static output with no client framework — Astro's View Transitions runtime, a reading-progress rail, and mermaid on the pages that draw something.
+- Static output with no client framework — Astro's View Transitions runtime, a reading-progress sidebar, and mermaid on the pages that draw something.
 - Multi-stage Docker build to `nginx:alpine`, deployed behind Traefik by Jenkins.
 
 Architecture: [`.claude/DESIGN.md`](.claude/DESIGN.md). What a page can control, and how far customization goes: [`.claude/AUTHORING.md`](.claude/AUTHORING.md).
@@ -122,6 +122,43 @@ $EDITOR content/blog/my-post/index.md      # → /blog/my-post
 cp ~/hero.jpg content/blog/my-post/        # reference it as ./hero.jpg
 ```
 
+A post's `index.md` starts with frontmatter:
+
+```md
+---
+title: My Post
+date: 2026-11-16
+author: Jake Runyan
+tags: [ai, agents]
+excerpt: One-line blurb for the listing and the meta description.
+sidebar: headers
+---
+
+Body in markdown.
+```
+
+### The sidebar
+
+Every page — blog post, project, or anything else — renders the same way: the title block, then the markdown body. `sidebar:` picks what sits beside it.
+
+| Value | Sidebar shows |
+|---|---|
+| `headers` | Links to the page's own `##` and `###` headings, so a reader can jump between sections. |
+| `progress` | A bar and a percentage showing how far through the body the reader has scrolled. |
+| `none`, `None`, `""`, or the field left out | Nothing. |
+
+```yaml
+sidebar: headers     # blog posts
+sidebar: progress    # project pages
+sidebar: none        # same as leaving it out
+```
+
+- **Set it on each page.** It is not inherited, so a section's `index.md` does not choose the sidebar for the pages inside it.
+- **`headers` needs at least three headings.** With fewer, the page shows no sidebar instead of a list that just repeats the title.
+- **Listing pages never show one.** A page with a `style:` other than `page` (such as `content/blog/index.md`) ignores `sidebar:`.
+- **Any other value fails the build**, with the file and the allowed values in the error.
+- On a wide screen the sidebar sticks in the left margin. On a narrow one it folds into a card above the content.
+
 ### Adding a section
 
 A section is a folder with an `index.md` that has a `style:` other than `page`. There is nothing to register:
@@ -134,7 +171,6 @@ title: Talks
 nav: 7
 style: list
 sort: newest
-rail: toc
 ---
 
 Things I have said out loud.

@@ -14,6 +14,7 @@
  */
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { SIDEBARS } from './render/sidebar/kinds';
 
 /**
  * An entry's id is its path with `/index.md` removed, so the id of
@@ -91,25 +92,19 @@ const content = defineCollection({
       width: z.enum(['article', 'wide', 'full', 'canvas']).default('article'),
 
       /**
-       * What goes in the margin beside the page: `toc` for a table of
-       * contents, `progress` for a reading indicator, `none` for
-       * nothing. Long form takes `title`, `depth` and `minHeadings`.
-       *
-       * Inherited: set it once on a section's index.md and every entry
-       * in that folder gets it. An entry that sets its own wins, and
-       * `rail: none` opts a subtree back out.
+       * What goes in the sidebar beside the page: `headers` for links to
+       * the page's own section headers, `progress` for a reading
+       * indicator. `none`, `None`, an empty value, or leaving the field
+       * out all mean no sidebar. Applies to the entry it is written on
+       * only — nothing is inherited from the section's index.md.
        */
-      rail: z
-        .union([
-          z.enum(['none', 'toc', 'progress']),
-          z.object({
-            show: z.enum(['none', 'toc', 'progress']),
-            title: z.string().optional(),
-            depth: z.number().int().min(2).max(4).optional(),
-            minHeadings: z.number().int().min(0).optional(),
-          }),
-        ])
-        .optional(),
+      sidebar: z.preprocess(
+        (value) =>
+          value == null || (typeof value === 'string' && /^(none)?$/i.test(value.trim()))
+            ? 'none'
+            : value,
+        z.enum(SIDEBARS),
+      ),
 
       /** The site shell: header + footer, header only, or neither. */
       chrome: z.enum(['default', 'minimal', 'bare']).default('default'),

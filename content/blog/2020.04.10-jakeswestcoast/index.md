@@ -4,6 +4,7 @@ date: 2020-04-10
 author: Jake Runyan
 tags: [cycling]
 excerpt: Riding around the peninsula and in the Santa Cruz Mountains.
+sidebar: headers
 ---
 
 [Jake's West Coast](https://www.youtube.com/@jakeswestcoast) is my cycling brand and YouTube channel. I've been cycling in some capacity since I was a child, but after years of biking as an adult, I've realized it's a hobby that I'll keep with me for life.

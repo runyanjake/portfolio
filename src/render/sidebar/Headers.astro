@@ -1,0 +1,28 @@
+---
+/**
+ * Links to the page's own section headers.
+ *
+ * The headings arrive already filtered — `resolveSidebar()` in page.ts
+ * decides which levels are listed and drops the sidebar entirely when
+ * there are too few to be worth it.
+ */
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  title: string;
+  headings: MarkdownHeading[];
+}
+
+const { title, headings } = Astro.props;
+---
+
+<nav class="sidebar-headers" aria-label={title}>
+  <p class="sidebar-headers__title">{title}</p>
+  <ul>
+    {headings.map((h) => (
+      <li class={`sidebar-headers__item sidebar-headers__item--depth-${h.depth}`}>
+        <a href={`#${h.slug}`}>{h.text}</a>
+      </li>
+    ))}
+  </ul>
+</nav>

@@ -4,6 +4,7 @@ date: 2024-12-30
 author: Jake Runyan
 tags: [ai, llm, self-hosted, ollama]
 excerpt: Replacing paid coding assistants with a self-hosted Ollama-backed setup.
+sidebar: headers
 ---
 
 During the end of 2024, there's been a lot of coding companions on the market. One I've liked is Cursor, which is a fork of VSCode and uses Clyde as an underlying model

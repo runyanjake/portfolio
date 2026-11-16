@@ -7,29 +7,27 @@
  * to read, and counting them makes a post read as 80% done before the
  * prose has started.
  */
-import type { RailSpec } from './spec';
-
 interface Props {
-  spec: RailSpec;
+  title: string;
 }
 
-const { spec } = Astro.props;
+const { title } = Astro.props;
 ---
 
-<div class="rail-progress" data-rail-progress>
-  <p class="rail-progress__title">{spec.title}</p>
+<div class="sidebar-progress" data-sidebar-progress>
+  <p class="sidebar-progress__title">{title}</p>
   <div
-    class="rail-progress__track"
+    class="sidebar-progress__track"
     role="progressbar"
-    aria-label={spec.title}
+    aria-label={title}
     aria-valuemin="0"
     aria-valuemax="100"
     aria-valuenow="0"
-    data-rail-progress-track
+    data-sidebar-progress-track
   >
-    <div class="rail-progress__fill" data-rail-progress-fill></div>
+    <div class="sidebar-progress__fill" data-sidebar-progress-fill></div>
   </div>
-  <p class="rail-progress__value" data-rail-progress-value>0%</p>
+  <p class="sidebar-progress__value" data-sidebar-progress-value>0%</p>
 </div>
 
 <script>
@@ -45,13 +43,13 @@ const { spec } = Astro.props;
   function start() {
     active?.abort();
 
-    const rail = document.querySelector<HTMLElement>('[data-rail-progress]');
+    const sidebar = document.querySelector<HTMLElement>('[data-sidebar-progress]');
     const body = document.querySelector<HTMLElement>('.page__body');
-    if (!rail || !body) return;
+    if (!sidebar || !body) return;
 
-    const track = rail.querySelector<HTMLElement>('[data-rail-progress-track]');
-    const fill = rail.querySelector<HTMLElement>('[data-rail-progress-fill]');
-    const value = rail.querySelector<HTMLElement>('[data-rail-progress-value]');
+    const track = sidebar.querySelector<HTMLElement>('[data-sidebar-progress-track]');
+    const fill = sidebar.querySelector<HTMLElement>('[data-sidebar-progress-fill]');
+    const value = sidebar.querySelector<HTMLElement>('[data-sidebar-progress-value]');
     if (!track || !fill || !value) return;
 
     active = new AbortController();

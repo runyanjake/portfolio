@@ -3,7 +3,7 @@
  *
  * Header, main and footer all span --shell-width, and the reading column
  * is centered inside it. That is the whole layout idea: the brand sits at
- * the shell's left edge and the rail hangs under it in the gutter, so the
+ * the shell's left edge and the sidebar hangs under it in the gutter, so the
  * space between the brand and the column's left edge is doing something
  * rather than just being empty. The controls sit at the shell's right
  * edge, the same distance out from the column's right edge, which is what

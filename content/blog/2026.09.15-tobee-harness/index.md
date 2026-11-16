@@ -4,6 +4,7 @@ date: 2026-09-15
 author: Jake Runyan
 tags: [ai, agents]
 excerpt: A general purpose agent framework themed after our old family cat, Tobee.
+sidebar: headers
 ---
 
 This is our old family cat, Tobee. Isn't he cute?

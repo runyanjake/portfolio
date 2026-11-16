@@ -23,7 +23,7 @@
  *             --color-info, --color-warn, --color-danger
  *   Type:     --font-body, --font-heading, --font-mono
  *   Measure:  --content-width, --wide-width, --shell-width,
- *             --rail-width, --rail-gap, --header-height,
+ *             --sidebar-width, --sidebar-gap, --header-height,
  *             --anchor-offset
  *   Rhythm:   --space-1 … --space-16
  *   Shape:    --radius-sm, --radius, --radius-lg,
@@ -42,15 +42,15 @@
  *                 .site-main     [data-width]
  *
  *   Page:         .page          [data-width] [data-style] [data-entry]
- *                                [data-rail]
+ *                                [data-sidebar]
  *                 .page__header, .page__title, .page__meta,
  *                 .page__meta-sep, .page__tags, .page__cover,
  *                 .page__link
  *                 .page__body
  *
- *   Rail:         .page__rail [data-rail]
- *     .rail-toc        __title __item __item--depth-{2,3,4}
- *     .rail-progress   __title __track __fill __value
+ *   Sidebar:      .page__sidebar [data-sidebar]
+ *     .sidebar-headers    __title __item __item--depth-{2,3,4}
+ *     .sidebar-progress   __title __track __fill __value
  *
  *   Listing:      .listing [data-style], .listing__empty
  *     .display-list      __item __link __title __date __excerpt
@@ -76,7 +76,7 @@
  *   Attribute values:
  *     [data-width] = article | wide | full | canvas   — the measure
  *     [data-style] = page | list | cards | grid | gallery
- *     [data-rail]  = toc | progress   (absent when there is no rail)
+ *     [data-sidebar]  = headers | progress   (absent when there is no sidebar)
  *     [data-entry] = the entry id, e.g. "blog/flux-1" — the hook for
  *                    styling exactly one page
  *
@@ -99,8 +99,8 @@
 @import "./chrome.css";
 @import "./page.css";
 @import "./listing.css";
-@import "./rail/toc.css";
-@import "./rail/progress.css";
+@import "./sidebar/headers.css";
+@import "./sidebar/progress.css";
 @import "./displays/list.css";
 @import "./displays/cards.css";
 @import "./displays/grid.css";

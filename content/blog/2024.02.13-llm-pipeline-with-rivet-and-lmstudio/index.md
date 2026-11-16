@@ -4,6 +4,7 @@ date: 2024-02-13
 author: Jake Runyan
 tags: [ai, llm, self-hosted]
 excerpt: Building a self-hosted LLM pipeline with Rivet and LM Studio.
+sidebar: headers
 ---
 
 Like so many others, I've recently delved into the wonderful world of Large Language Models (LLMs) and Generative AI, and more importantly, into the most recent of self-hostable resources from various researchers and fellow hobbyists.

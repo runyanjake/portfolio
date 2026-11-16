@@ -4,6 +4,7 @@ date: 2024-02-15
 author: Jake Runyan
 tags: [ai, image-gen, comfyui]
 excerpt: Setting up a streamlined Stable Diffusion XL workflow with ComfyUI.
+sidebar: headers
 ---
 
 Stable Diffusion is a fun way to experience AI. For someone exploring the models that others create, it's important to have a streamlined workflow so that the bulk of time can be spent on experimentation rather than configuration.

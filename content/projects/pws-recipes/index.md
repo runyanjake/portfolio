@@ -4,6 +4,7 @@ date: 2026-02-08
 author: Jake Runyan
 tags: [website, cooking]
 excerpt: A passion project combining my web design hobby and my passion for trying new recipes. 
+sidebar: progress
 ---
 
 PWS news is my online cookbook, a collection of recipes that I've enjoyed cooking, those that I've come up with myself, and a folder of dishes that I plan to make many more times in the future.

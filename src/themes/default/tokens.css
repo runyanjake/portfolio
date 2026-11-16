@@ -76,29 +76,29 @@
    * The measures, and the one equation that ties them together:
    *
    *   --shell-width = --content-width
-   *                 + 2 x (--rail-width + --rail-gap)
+   *                 + 2 x (--sidebar-width + --sidebar-gap)
    *                 + 2 x --space-6          (the shell's own padding)
    *
    *   1280px = 720 + 2 x (200 + 56) + 2 x 24
    *
    * That is not decoration. Because it balances exactly, the reading
    * column is centered on screen *and* the leftover gutter is precisely
-   * one rail wide, so the rail's left edge lands on the same pixel as
+   * one sidebar wide, so the sidebar's left edge lands on the same pixel as
    * the brand in the header above it and the distance from the brand to
    * the column equals the distance from the column to the controls. The
    * header stops looking arbitrary because everything in it is aligned
    * to something.
    *
    * Change one of these and the others have to move, including the
-   * literal 1280px in the media queries in page.css and rail/toc.css —
+   * literal 1280px in the media queries in page.css and sidebar/headers.css —
    * media queries cannot read custom properties, so those numbers are
    * the one place the equation is duplicated.
    */
   --content-width: 720px;
   --wide-width: 1100px;
   --shell-width: 1280px;
-  --rail-width: 200px;
-  --rail-gap: 3.5rem;
+  --sidebar-width: 200px;
+  --sidebar-gap: 3.5rem;
   --header-height: 3.25rem;
 
   /*

@@ -4,6 +4,7 @@ date: 2025-03-15
 author: Jake Runyan
 tags: [ai, productivity, web-dev]
 excerpt: Notes on building a content-focused site with a "vibe coding" workflow.
+sidebar: headers
 ---
 
 Since late last year, I've been testing Cursor at home. Everyone's work is slowly integrating Copilot style tooling into the dev workflow, but while our security team has been vetting everything, I've been doing my own research.

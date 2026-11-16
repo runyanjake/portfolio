@@ -59,7 +59,7 @@ draft: true                   # excluded from the build entirely
 nav: 3                        # put it in the site nav; or {order: 3, label: "…"}
 style: list                   # what this page renders as
 sort: newest                  # order of the children it lists
-rail: toc                     # what goes in the margin (inherited)
+sidebar: headers              # what goes beside the page: headers | progress | none
 width: article                # the measure
 chrome: default               # the site shell
 ```
@@ -86,44 +86,37 @@ Every value renders the entry's own prose. The non-`page` values then append a l
 
 Entries with no `date` sort last under `newest`/`oldest` rather than pretending to be from 1970.
 
-#### `rail` — what goes in the margin
+#### `sidebar` — what goes beside the page
 
-The one inherited field. Set it on a section's index.md and every entry
-in the folder gets it, which is the point: the blog's posts all carry a
-table of contents because `content/blog/index.md` says so, not because
-eight post files each remembered to ask.
+Every entry renders as the same page: title block, then the markdown
+body. `sidebar:` picks what sits in the margin beside it. Blog posts use
+`headers`, projects use `progress`, and both are otherwise the same kind
+of page.
 
 ```yaml
-rail: toc                                  # a table of contents
-rail: progress                             # how far through the reader is
-rail: none                                 # nothing (the default)
-rail: { show: toc, depth: 4, title: Contents, minHeadings: 2 }
+sidebar: headers       # links to the page's own section headers
+sidebar: progress      # how far through the reader is
+sidebar: none          # nothing; so do `None`, `""`, and leaving it out
 ```
 
 | Value | Shows |
 |---|---|
-| `none` | Nothing. The default. |
-| `toc` | Links to the page's own `h2`–`h<depth>` headings. |
+| `headers` | Links to the page's own `h2` and `h3` headings. |
 | `progress` | A bar and a percentage tracking how far through the body the reader is. |
+| `none` / `None` / `""` / unset | Nothing. |
 
-| Option | Default | Effect |
-|---|---|---|
-| `show` | `none` | Which of the above. |
-| `title` | `On this page` / `Progress` | The label above it. |
-| `depth` | `3` | Deepest heading level a contents list includes (2–4). |
-| `minHeadings` | `3` | Below this many headings the contents list hides — on a short page it is a second title, not navigation. |
+**Set it on each entry.** It is not inherited: `content/blog/index.md`
+does not choose the sidebar for the posts in its folder, each post does.
 
-Resolution is nearest-wins: an entry's own `rail:` beats its section's,
-which beats `content/index.md`'s. `rail: none` is how a subtree opts back
-out of something an ancestor turned on.
+**`headers` needs three headings.** With fewer, the sidebar is omitted —
+on a short page a list of its sections is a second title, not navigation.
 
-**Listing pages get no rail.** Progress through a list of links means
+**Listing pages get no sidebar.** Progress through a list of links means
 nothing, and a listing page's substance is the listing rather than its
-intro prose. So `rail:` on `content/blog/index.md` describes the posts,
-not `/blog` itself.
+intro prose, so any `style:` other than `page` ignores the field.
 
-On a wide screen the rail sits in the left gutter, aligned with the brand
-in the header, and sticks as the reader scrolls. Narrower than
+On a wide screen the sidebar sits in the left gutter, aligned with the
+brand in the header, and sticks as the reader scrolls. Narrower than
 `--shell-width` there is no gutter to sit in, so it folds into a card
 above the content. Same markup either way.
 
@@ -329,8 +322,8 @@ Tier 2 is therefore a *maintainability* boundary, not a security one, and none o
 ## Gotchas
 
 - **`layout:` is reserved in MDX frontmatter.** Use `width:`. See Tier 0.
-- **`rail:` is the only inherited field.** Everything else applies to the entry it is written on.
-- **A contents list can vanish.** Fewer than `minHeadings` headings and the rail is omitted, by design. Lower `minHeadings` if a short page really wants one.
+- **No field is inherited.** Every frontmatter value, `sidebar:` included, applies only to the entry it is written on.
+- **A `headers` sidebar can vanish.** Fewer than three `h2`/`h3` headings and it is omitted, by design.
 - **Underscore prefixes do not hide files.** The glob loader has no special handling for `_`-prefixed names — `content/blog/_draft/index.md` publishes at `/blog/_draft`. Use `draft: true`.
 - **Renaming a folder changes its URL.** Ids derive from paths and nothing else references them.
 - **A nested container directive needs more colons than its parent.** `::::columns` around `:::column`.
