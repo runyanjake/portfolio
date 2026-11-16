@@ -5,7 +5,7 @@ author: Jake Runyan
 tags: [ai, image-gen, flux]
 excerpt: Revisiting AI image generation with the new Flux.1 model.
 sidebar: headers
-cover: "./comfy.png"
+cover: "./apple.png"
 ---
 
 Stable diffusion and its peers have proven to be the beginning of the wide applications of image generation. Over the past year, AI-generated content has become a lot more prevalent on the internet, showing up everywhere from social media to content mill news sites.
