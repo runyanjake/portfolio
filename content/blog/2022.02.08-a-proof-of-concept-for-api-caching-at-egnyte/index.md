@@ -61,7 +61,7 @@ Performance testing indicated that Nginx would be a suitable replacement for lar
 
 In its current state, API Cache serves a large portion of traffic in one of our regions and will shortly be rolled out to all remaining production regions. Some highlights of the deployment from production include:
 
-- Performance is in line with the in-memory caching implementation. We determined that the average use case for large folders is a one-to-many relationship of cache misses to cache hits. This ratio is always at least 1:1 and is often much higher, meaning we are gaining a lot of value with each folder served by API Cache.
+- Performance is in line with the in-memory caching implementation. We determined that the average use case for large folders is a one-to-many relationship of cache misses to cache hits. This ratio is always at least 1\:1 and is often much higher, meaning we are gaining a lot of value with each folder served by API Cache.
 - Caching pressure has been reduced.Some listings can be greater than 50 MB of just metadata. We save a significant amount of space in-memory and have removed a number of large queries.
 - API Cache hits are fast. Each listing served from Nginx (while being served from disk & being in excess of 50MB each in some cases) still averages on the order of <15ms over network.
 - Grafana framework will be used for monitoring going forward. During this trial it was important to have metric insight. As we do in many other areas, we leverage OpenTSDB + Grafana for this. An abundance of newly added application metrics help me keep on top of performance as I monitor day to day.
