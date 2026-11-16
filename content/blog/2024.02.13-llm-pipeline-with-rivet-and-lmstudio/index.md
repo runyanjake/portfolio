@@ -36,28 +36,28 @@ What follows is a short tutorial for a POC of my LLM pipeline.
 2. Launch Rivet and begin a new Graph.
 Add a simple flow with text nodes leading into a Chat node, and the output being dumped into a Graph Output node.
 
-![Rivet graph with text nodes and Chat node](https://images.whitney.rip/api/assets/32c7412d-bd94-4761-9f26-01e7c6e0ddf6/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=ugvj80tG7OQUwzyznEh%2Fa%2FLiNX0%3D)
+![Rivet graph with text nodes and Chat node](./simple_flow.png)
 
 Running this gives an error because there's no OpenAI credentials, but we'll be running locally so that's not a problem.
 
 3. In LM Studio, go to the Search tab and find a model. In the example I search for Mistral and find `mistral-7b-instruct-v0.1.Q2_K.gguf`. Download it to somewhere you've got space, these are large!
 The model should show up in the "My Models" tab.
 
-![LM Studio model search](https://images.whitney.rip/api/assets/06d9650f-ea25-4a5e-8a9f-41c313424bb1/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=nu7dApDpgrIdhRGDKvCX2HCVbRA%3D)
+![LM Studio model search](./download_model.png)
 
 4. Open the "Local Server" tab and in the top bar, load your model.
 
-![LM Studio Local Server tab](https://images.whitney.rip/api/assets/9744a24a-7eb5-4db7-948a-d81a4cca957a/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=pMAm99Z%2Fcn3W25EctTLF6xx6F%2Bo%3D)
+![LM Studio Local Server tab](./load_model.png)
 
 Leave the configuration alone EXCEPT for enabling CORS, which allows us to connect from other origins (e.g. through curl).
 
-![CORS enabled](https://images.whitney.rip/api/assets/0915f29b-e42f-443b-90bd-7f7b2738669e/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=UqGz9xu92but4myiD%2B0AZJ7ivBY%3D)
+![CORS enabled](./model_configuration.png)
 
 5. Click Start Server and confirm things are working by copying the curl given as an example. You will need to allow LM Studio through your computer's firewall.
 
 You should see console output confirming things work.
 
-![Console output](https://images.whitney.rip/api/assets/5a93dfe7-3a8d-413b-b021-b19ee479fde4/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=BD3TGgCE6OWrhblLs%2FGOGEnQnE4%3D)
+![Console output](./console_confirmation.png)
 
 6. Back in Rivet, configure the Chat node.
 In GPT Model, choose "Local Model".
@@ -65,7 +65,7 @@ In Advanced, put in the endpoint pointing to LM Studio. This would be the endpoi
 
 IMPORTANTLY, DO NOT flip the switch to the right unless you plan to explicitly add your endpoint in as a node on the map.
 
-![Configured Chat node](https://images.whitney.rip/api/assets/2d1011ef-0c11-47da-8a5b-c6d13537bf7e/thumbnail?size=preview&key=--mO7kUUzkeGbsE8f6bJKWg-toGLQWh_ZZRxqkUIQxYQlSfDu92Or2l1rF1ASwNx_Vw&c=pmOjLf%2BIPIgCyjxYrMSoyA6Oaxw%3D)
+![Configured Chat node](./advanced_settings.png)
 
 7. Click run in the top right to generate an output.
 
