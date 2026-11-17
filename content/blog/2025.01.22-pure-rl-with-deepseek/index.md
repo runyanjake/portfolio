@@ -1,5 +1,5 @@
 ﻿---
-title: Pure RL With DeepSeek
+title: "Pure RL With DeepSeek"
 date: 2025-01-22
 author: Jake Runyan
 tags: [ai, llm, deepseek, openwebui]

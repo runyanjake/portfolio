@@ -1,5 +1,5 @@
 ---
-title: Building a News Aggregator from LLM Concepts
+title: "Building a News Aggregator from LLM Concepts"
 date: 2026-11-14
 author: Jake Runyan
 tags: [ai, agents]

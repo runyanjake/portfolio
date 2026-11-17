@@ -1,5 +1,5 @@
 ---
-title: The TOBEE Agent Harness
+title: "The TOBEE Agent Harness"
 date: 2026-09-15
 author: Jake Runyan
 tags: [ai, agents]

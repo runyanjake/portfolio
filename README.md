@@ -126,7 +126,7 @@ A post's `index.md` starts with frontmatter:
 
 ```md
 ---
-title: My Post
+title: "My Post"
 date: 2026-11-16
 author: Jake Runyan
 tags: [ai, agents]
@@ -190,7 +190,7 @@ A section is a folder with an `index.md` that has a `style:` other than `page`. 
 mkdir content/talks
 cat > content/talks/index.md <<'MD'
 ---
-title: Talks
+title: "Talks"
 nav: 7
 style: list
 sort: newest
@@ -200,4 +200,4 @@ Things I have said out loud.
 MD
 ```
 
-`title` is the only required frontmatter field. Set `draft: true` to keep an entry out of the build. Full schema and the `style:` catalogue: [`.claude/AUTHORING.md`](.claude/AUTHORING.md).
+`title` is the only required frontmatter field. Always put it in double quotes: a title with a colon in it, like `PWS: My Homelabbing Journey`, breaks the build otherwise. Set `draft: true` to keep an entry out of the build. Full schema and the `style:` catalogue: [`.claude/AUTHORING.md`](.claude/AUTHORING.md).

@@ -1,5 +1,5 @@
 ---
-title: Tech Interests
+title: "Tech Interests"
 order: 2
 excerpt: What I'm interested in about tech.
 ---

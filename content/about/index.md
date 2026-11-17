@@ -1,5 +1,5 @@
 ---
-title: About
+title: "About"
 nav:
   order: 2
 style: cards

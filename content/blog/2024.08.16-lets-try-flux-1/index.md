@@ -1,5 +1,5 @@
 ﻿---
-title: Let's Try Flux.1
+title: "Let's Try Flux.1"
 date: 2024-08-16
 author: Jake Runyan
 tags: [ai, image-gen, flux]

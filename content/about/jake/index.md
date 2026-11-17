@@ -1,5 +1,5 @@
 ---
-title: About Me
+title: "About Me"
 order: 1
 excerpt: Bay Area native, software engineer, hobbyist of many things.
 ---

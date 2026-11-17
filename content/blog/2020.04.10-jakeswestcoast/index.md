@@ -1,5 +1,5 @@
 ﻿---
-title: Building a Content Brand: Jake's West Coast
+title: "Building a Content Brand: Jake's West Coast"
 date: 2020-04-10
 author: Jake Runyan
 tags: [cycling]

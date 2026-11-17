@@ -1,5 +1,5 @@
 ---
-title: Jake Runyan
+title: "Jake Runyan"
 style: page
 excerpt: Bay Area software engineer. Homelabs, bikes, and side projects.
 ---

@@ -1,5 +1,5 @@
 ﻿---
-title: Vibe Coding a Content Focused Site
+title: "Vibe Coding a Content Focused Site"
 date: 2025-03-15
 author: Jake Runyan
 tags: [ai, productivity, web-dev]

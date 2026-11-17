@@ -1,5 +1,5 @@
 ---
-title: PWS Recipes
+title: "PWS Recipes"
 date: 2026-02-08
 author: Jake Runyan
 tags: [website, cooking]

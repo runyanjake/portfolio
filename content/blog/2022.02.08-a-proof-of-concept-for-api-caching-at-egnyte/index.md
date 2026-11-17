@@ -1,5 +1,5 @@
 ---
-title: A Proof-of-Concept for API Caching at Egnyte
+title: "A Proof-of-Concept for API Caching at Egnyte"
 date: 2022-02-08
 author: Jake Runyan
 tags: [engineering, nginx]

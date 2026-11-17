@@ -1,5 +1,5 @@
 ---
-title: Friends
+title: "Friends"
 nav:
   order: 5
 style: cards

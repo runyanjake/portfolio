@@ -1,5 +1,5 @@
 ﻿---
-title: March Madness, Meet Agentic AI
+title: "March Madness, Meet Agentic AI"
 date: 2025-03-19
 author: Jake Runyan
 tags: [ai, agents, sports]

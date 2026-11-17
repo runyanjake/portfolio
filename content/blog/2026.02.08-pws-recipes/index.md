@@ -1,5 +1,5 @@
 ---
-title: Remembering the Smallweb with PWS Recipes
+title: "Remembering the Smallweb with PWS Recipes"
 date: 2026-02-08
 author: Jake Runyan
 tags: [website, cooking]

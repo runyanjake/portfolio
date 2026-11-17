@@ -46,7 +46,7 @@ Five tiers, ordered by blast radius. Reach for the lowest tier that does the job
 One schema, every entry. `title` is the only required field.
 
 ```yaml
-title: Flux.1                 # required
+title: "Flux.1"               # required; always quoted
 excerpt: One-line blurb.      # listing blurb + meta description
 date: 2024-08-16
 author: Jake Runyan
@@ -268,7 +268,7 @@ content/blog/my-post/
 
 ```mdx
 ---
-title: My post
+title: "My post"
 date: 2026-09-08
 width: wide
 ---

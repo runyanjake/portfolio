@@ -1,5 +1,5 @@
 ---
-title: Building a Custom Agent Harness for Local LLMs
+title: "Building a Custom Agent Harness for Local LLMs"
 date: 2026-09-15
 author: Jake Runyan
 tags: [ai, agents]

@@ -1,5 +1,5 @@
 ---
-title: Contact
+title: "Contact"
 nav:
   order: 6
 style: page

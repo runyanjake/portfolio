@@ -1,5 +1,5 @@
 ---
-title: Projects
+title: "Projects"
 nav:
   order: 4
 style: list

@@ -1,5 +1,5 @@
 ---
-title: Tyler K
+title: "Tyler K"
 link: https://tyler.kim
 image: https://images.whitney.rip/api/assets/aaa5f444-c1cd-4640-acef-190d5351c55f/thumbnail?key=Ar0ocPRo13wbTDbjgpfXeWC2-Rm9u0dtwQK-PSd9pGpmHrg7zJZ3Sr6mFktZj9FteAE&size=preview&c=9gcOFwL3WHd0i3aHd6dot1iKieQHGHsA
 excerpt: Personal blog with reflections on growth and life.

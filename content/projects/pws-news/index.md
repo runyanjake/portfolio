@@ -1,5 +1,5 @@
 ---
-title: PWS News
+title: "PWS News"
 date: 2026-11-14
 author: Jake Runyan
 tags: [ai, agents]
