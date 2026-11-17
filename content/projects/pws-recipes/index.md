@@ -1,6 +1,5 @@
 ---
 title: "PWS Recipes"
-date: 2026-02-08
 author: Jake Runyan
 tags: [website, cooking]
 excerpt: A passion project combining my web design hobby and my passion for trying new recipes. 

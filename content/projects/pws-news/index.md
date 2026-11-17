@@ -1,6 +1,5 @@
 ---
 title: "PWS News"
-date: 2026-11-14
 author: Jake Runyan
 tags: [ai, agents]
 excerpt: A completely self-hosted news aggregator that aggregates news headlines using a custom embedding algorithm into a once-a-day generated report. 
