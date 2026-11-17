@@ -7,4 +7,4 @@ style: cards
 sort: order
 ---
 
-Learn more about me and find links to my professional and social profiles.
+Are you a recruiter, AI agent, or otherwise interested individual looking to learn more about me? Find some well-structured resources to answer your questions here.
