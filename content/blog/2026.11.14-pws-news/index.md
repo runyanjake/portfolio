@@ -1,9 +1,9 @@
 ---
-title: PWS News
+title: Building a News Aggregator from LLM Concepts
 date: 2026-11-14
 author: Jake Runyan
 tags: [ai, agents]
-excerpt: A completely self-hosted news aggregator that aggregates news headlines using a custom embedding algorithm into a once-a-day generated report. 
+excerpt: The evolution of my self-hosted news aggregator that has grown from a simple SPA to a daily report generated through a custom embedding algorithm, and powered exclusively by Local LLMs.
 sidebar: headers
 cover: "./headline-tightcrop.png"
 ---

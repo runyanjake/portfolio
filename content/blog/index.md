@@ -6,4 +6,4 @@ style: list
 sort: newest
 ---
 
-Some of my ramblings, hope you enjoy.
+This blog contains my thoughts on the projects I've built, my memorable achievements, and my take on developing stories in tech. Please enjoy.

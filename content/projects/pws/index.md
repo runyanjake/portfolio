@@ -1,9 +1,9 @@
 ---
-title: PWS - A Homelabbing Journey
+title: PWS
 date: 2020-12-07
 author: Jake Runyan
 tags: [homelabbing]
-excerpt: A homelabbing project that taught me Linux, hardware, networking, and security.
+excerpt: A homelabbing project that has taught me Linux, hardware, networking, and security.
 sidebar: progress
 cover: "./pws-logo.png"
 ---

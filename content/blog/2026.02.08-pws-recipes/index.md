@@ -1,14 +1,16 @@
 ---
-title: PWS Recipes
+title: Remembering the Smallweb with PWS Recipes
 date: 2026-02-08
 author: Jake Runyan
 tags: [website, cooking]
-excerpt: A passion project combining my web design hobby and my passion for trying new recipes. 
+excerpt: Embracing the charm of small, self-maintained websites with my content-forward recipe website framework. A passion project combining my web design hobby and my passion for trying new recipes. 
 sidebar: headers
 cover: "./recipes-v2.png"
 ---
 
 The biggest pain point I've felt when trying a new recipe is navigating the recipe page. So many Squ*respace-templated websites appear to have turned the advertising knob to 11 *(completely understandable btw, money is money)*, at the expense of user experience and information density. 
+
+With so many websites being deployed with the same (and sometimes, annoying) site frameworks and plugins, one can only help but feel a certain type of nostalgia for the early 2000s' [smallweb](https://tham.es/smallweb/) style. This website (though backed by modern languages and frameworks) is my unique drop in the bucket of the modern internet.
 
 Many times I'll have the recipe open on a mobile device as I cook, and while measuring ingredients for the next step, I'll come back to the recipe to figure out the amounts when I realize the website has scrolled back up to the top of the page. From there, I'll scroll for about 15 seconds to find the recipe card again, as my pot goes a bit too far and burns on the stove.
 

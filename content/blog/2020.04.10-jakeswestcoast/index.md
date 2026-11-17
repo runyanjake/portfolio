@@ -1,9 +1,9 @@
 ﻿---
-title: Jake's West Coast
+title: Building a Content Brand: Jake's West Coast
 date: 2020-04-10
 author: Jake Runyan
 tags: [cycling]
-excerpt: Riding around the peninsula and in the Santa Cruz Mountains.
+excerpt: My first semi-serious attempt at creating a multimedia content brand, centered around my love for riding bikes in the San Francisco Bay Area.
 sidebar: headers
 cover: "./allez.jpg"
 ---

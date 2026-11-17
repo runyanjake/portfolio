@@ -1,9 +1,9 @@
 ---
-title: The TOBEE Agent Harness
+title: Building a Custom Agent Harness for Local LLMs
 date: 2026-09-15
 author: Jake Runyan
 tags: [ai, agents]
-excerpt: A general purpose agent framework themed after our old family cat, Tobee.
+excerpt: A recounting of the steps I took to build a completely self-hostable general purpose agent frameork, powered exclusively by Local LLMs.
 sidebar: headers
 cover: "./tobee.jpeg"
 ---
