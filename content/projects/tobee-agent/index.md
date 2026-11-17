@@ -1,5 +1,6 @@
 ---
 title: "The TOBEE Agent Harness"
+order: 2
 author: Jake Runyan
 tags: [ai, agents]
 excerpt: A general purpose agent framework themed after our old family cat, Tobee.

@@ -95,7 +95,7 @@ ratio and width are `--list-cover-ratio` and `--list-cover-width` in
 
 #### `sort` — the order children appear in
 
-`newest` (default) · `oldest` · `order` (by the `order:` field, unset last) · `title`
+`newest` (default) · `oldest` · `order` (by the `order:` field; unset last, ties newest-first then by title) · `title`
 
 Entries with no `date` sort last under `newest`/`oldest` rather than pretending to be from 1970.
 

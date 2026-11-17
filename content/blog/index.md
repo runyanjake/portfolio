@@ -2,6 +2,7 @@
 title: "Blog"
 nav:
   order: 3
+  label: "Blog"
 style: list
 sort: newest
 ---

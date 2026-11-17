@@ -2,6 +2,7 @@
 title: "Friends"
 nav:
   order: 5
+  label: "Friends"
 style: cards
 sort: title
 ---

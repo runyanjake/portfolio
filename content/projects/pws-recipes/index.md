@@ -1,5 +1,6 @@
 ---
 title: "PWS Recipes"
+order: 3
 author: Jake Runyan
 tags: [website, cooking]
 excerpt: A passion project combining my web design hobby and my passion for trying new recipes. 

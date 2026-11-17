@@ -2,6 +2,7 @@
 title: "Contact"
 nav:
   order: 6
+  label: "Contact"
 style: page
 excerpt: How to reach me.
 ---

@@ -47,10 +47,13 @@ const byDate = (direction: 1 | -1) => (a: Entry, b: Entry) => {
   return da === db ? byTitle(a, b) : (db - da) * direction;
 };
 
+// Unnumbered entries sort last; ties (including two unnumbered entries)
+// fall back to newest-first, and from there to title. A post that forgot
+// its `order:` still lands somewhere sensible among the others.
 const byOrder = (a: Entry, b: Entry) => {
   const oa = a.data.order ?? Number.POSITIVE_INFINITY;
   const ob = b.data.order ?? Number.POSITIVE_INFINITY;
-  return oa === ob ? byTitle(a, b) : oa - ob;
+  return oa === ob ? byDate(1)(a, b) : oa - ob;
 };
 
 const COMPARATORS: Record<Sort, (a: Entry, b: Entry) => number> = {
