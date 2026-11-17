@@ -225,6 +225,13 @@ Note the four colons on the outer `columns`: a container directive nests inside 
 
 **Typos fail the build.** `:::note` reports the file and lists every block that does exist; writing a container block as `::callout` says so and names the right form. Both exit non-zero — see the `blockCheck()` section of [`DESIGN.md`](DESIGN.md) for why that takes two mechanisms rather than one.
 
+#### Full-screen images
+
+Every image in the body (including inside `figure` and `gallery`) opens
+full-screen on click. An image wrapped in a link follows the link
+instead. The `image:` banner and `cover:` thumbnails are not part of the
+body, so they don't open. Nothing to configure.
+
 #### Diagrams
 
 Flowcharts and the rest are the one thing here that is *not* a directive. A diagram is a fenced code block tagged `mermaid`, exactly as it is written on GitHub:

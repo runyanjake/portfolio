@@ -16,6 +16,7 @@
 import type { Entry as ContentEntry } from '../lib/content';
 import Document from './Document.astro';
 import Image from './Image.astro';
+import Lightbox from './Lightbox.astro';
 import Listing from './Listing.astro';
 import Mermaid from './markdown/Mermaid.astro';
 import Sidebar from './Sidebar.astro';
@@ -80,6 +81,8 @@ const formattedDate = date
     {sidebar.kind !== 'none' && <Sidebar sidebar={sidebar} />}
 
     {page.mermaid && <Mermaid />}
+
+    {page.lightbox && <Lightbox />}
 
     <div class="page__body">
       <Content />

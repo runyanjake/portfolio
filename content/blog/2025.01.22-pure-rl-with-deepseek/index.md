@@ -41,7 +41,7 @@ verbatim from my github profile and websites.
 
 I'm still actively using chatgpt, claude, and others for coding work, but as local LLMs improve you can bet I'll be keeping up to date with this stack.
 
-## Resources
-[OpenWebUI](https://github.com/ml-explore/OpenWebUI)
-[Deepseek with Ollama](https://ollama.ai/library/deepseek-coder)
-Thank you to [DWS](https://dws.rip) for collaboration.
+## Links / Acknowledgements
+- [OpenWebUI](https://github.com/ml-explore/OpenWebUI)
+- [Deepseek with Ollama](https://ollama.ai/library/deepseek-coder)
+- Thank you to [DWS](https://dws.rip) for collaboration.

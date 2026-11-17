@@ -59,7 +59,17 @@ export interface Page {
   listing?: Item[];
   /** Whether the body has a mermaid fence, so the page needs the renderer. */
   mermaid: boolean;
+  /** Whether the body has an image, so the page needs the lightbox. */
+  lightbox: boolean;
 }
+
+/**
+ * A markdown image (`![alt](src)`) or a raw <img>. Asked of the raw body
+ * so a text-only post ships no lightbox code; a false positive (the
+ * syntax inside a code block) only costs a few unused bytes.
+ */
+const hasImages = (body: string | undefined): boolean =>
+  body !== undefined && /!\[[^\]]*\]\(|<img\b/i.test(body);
 
 function resolveSidebar(entry: Entry, headings: MarkdownHeading[]): Sidebar {
   // A listing page gets no sidebar: progress through a list of links
@@ -122,5 +132,6 @@ export async function buildPage(entry: Entry): Promise<Page> {
     // renderer is included per page. Asked of the raw body: a page that
     // draws nothing ships no diagram code.
     mermaid: hasMermaid(entry.body),
+    lightbox: hasImages(entry.body),
   };
 }

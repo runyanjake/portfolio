@@ -1,0 +1,89 @@
+---
+/**
+ * Click an image in a post to see it full screen.
+ *
+ * Applies to images in `.page__body` only — the prose, including
+ * `figure` and `gallery` blocks. The page's own `image:` banner sits in
+ * `.page__header` and the `cover:` thumbnails sit in a listing, so
+ * neither is touched. An image that is already a link keeps doing what
+ * the link says.
+ *
+ * Rendered by Entry.astro only when the body has an image in it
+ * (`hasImages`), so a text-only post ships none of this.
+ *
+ * The overlay is a native <dialog> opened with showModal(): the browser
+ * provides the backdrop, the focus trap, Esc to close and inert content
+ * behind it, so none of that is reimplemented here. Clicking anywhere
+ * closes it, since the picture is the only thing in it.
+ *
+ * Without JavaScript the images are simply images, as they were.
+ */
+---
+
+<dialog class="lightbox" aria-label="Image viewer" data-lightbox>
+  <img class="lightbox__image" alt="" data-lightbox-image />
+  <button type="button" class="lightbox__close" aria-label="Close" data-lightbox-close>×</button>
+</dialog>
+
+<script>
+  /** Images in the prose that open in the viewer. */
+  const SELECTOR = '.page__body img';
+
+  const eligible = (img: Element): img is HTMLImageElement =>
+    img instanceof HTMLImageElement && img.matches(SELECTOR) && !img.closest('a');
+
+  function open(img: HTMLImageElement) {
+    const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+    const view = dialog?.querySelector<HTMLImageElement>('[data-lightbox-image]');
+    if (!dialog || !view) return;
+
+    // currentSrc is the candidate the browser actually chose, which for
+    // a markdown image is the full-size render; src covers the rest.
+    view.src = img.currentSrc || img.src;
+    view.alt = img.alt;
+    dialog.showModal();
+  }
+
+  function close() {
+    document.querySelector<HTMLDialogElement>('[data-lightbox]')?.close();
+  }
+
+  // Delegated from document: ClientRouter replaces the body on every
+  // navigation, and a listener here outlives that without rebinding.
+  // The module evaluates once per session, so these register once.
+  document.addEventListener('click', (event) => {
+    const target = event.target as Element | null;
+    if (!target) return;
+
+    if (target.closest('[data-lightbox]')) {
+      close();
+      return;
+    }
+    if (eligible(target)) open(target);
+  });
+
+  // Keyboard: the images are made focusable below, so Enter or Space on
+  // one opens it the way a click does.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const target = event.target as Element | null;
+    if (!target || !eligible(target)) return;
+    event.preventDefault();
+    open(target);
+  });
+
+  // Per page, after every navigation: mark the eligible images as
+  // controls so the cursor, focus ring and screen readers all say so.
+  function mark() {
+    document.querySelectorAll(SELECTOR).forEach((img) => {
+      if (!eligible(img)) return;
+      img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-haspopup', 'dialog');
+      img.dataset.lightboxable = '';
+    });
+  }
+
+  document.addEventListener('astro:page-load', mark);
+  mark();
+</script>

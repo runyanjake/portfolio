@@ -174,6 +174,14 @@ cover: "https://example.com/picture.png"   # or an image hosted elsewhere
 - **Reusing the post's first image works well.** That is what the existing posts do.
 - **A bad path fails the build.** A local file that doesn't exist is an error, not a broken image.
 
+### Full-screen images
+
+Any image in a page's markdown body opens full-screen when clicked, or when focused and Enter is pressed. Click anywhere or press Esc to close it. There is nothing to configure. These are not clickable:
+
+- an image wrapped in a link, which follows the link instead
+- the `image:` banner at the top of a page
+- `cover:` thumbnails in a list
+
 ### Adding a section
 
 A section is a folder with an `index.md` that has a `style:` other than `page`. There is nothing to register:

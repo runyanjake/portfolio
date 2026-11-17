@@ -79,6 +79,7 @@ Nothing here knows what a page looks like.
 | `Header.astro`, `Footer.astro` | Site chrome. The header's nav comes from the content tree. |
 | `Listing.astro` | A folder's children, in the shape `style:` asks for. |
 | `Sidebar.astro`, `sidebar/*` | The margin column: section headers, or reading progress. |
+| `Lightbox.astro` | Click-to-fullscreen for images in `.page__body`, on a native `<dialog>`. Rendered only on pages whose body has an image. |
 | `ThemeToggle.astro` | The light/dark button. Markup only — see below. |
 | `displays/*.astro` | The four shapes. Each takes `items: Item[]` and nothing else. |
 | `Image.astro` | Local `ImageMetadata` → `<Image>`; remote URL → plain `<img>`. |
@@ -147,7 +148,7 @@ At `--shell-width` and above the sidebar is absolutely positioned into the gutte
 
 Below that width there is no gutter, so the sidebar stays in normal flow as a card above the content. Same markup, one media query — there is no second component and no JS measuring anything.
 
-`Progress.astro` is one of the two components on the site that ship JavaScript (`Mermaid.astro` is the other). It measures against `.page__body` rather than the document, because counting the header, title block and footer makes a post read as most-of-the-way-done before the prose starts. Its listeners are re-registered on `astro:page-load` and dropped through an `AbortController` — ClientRouter replaces the body on every navigation, so without that the handlers would accumulate for the length of a browsing session.
+`Progress.astro` is one of the three components on the site that ship JavaScript (`Mermaid.astro` and `Lightbox.astro` are the others). It measures against `.page__body` rather than the document, because counting the header, title block and footer makes a post read as most-of-the-way-done before the prose starts. Its listeners are re-registered on `astro:page-load` and dropped through an `AbortController` — ClientRouter replaces the body on every navigation, so without that the handlers would accumulate for the length of a browsing session.
 
 ### Where a contents entry lands
 

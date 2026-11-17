@@ -1,0 +1,88 @@
+/*
+ * The full-screen image viewer (src/render/Lightbox.astro).
+ *
+ * The images that open it get a zoom cursor; the viewer itself is a
+ * native <dialog> stretched over the viewport, with the picture
+ * contained — never cropped, never upscaled past its natural size.
+ */
+.page__body img[data-lightboxable] {
+  cursor: zoom-in;
+}
+
+.page__body img[data-lightboxable]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* The page behind the viewer stays put while it is open. */
+html:has(.lightbox[open]) {
+  overflow: hidden;
+}
+
+.lightbox {
+  /* Undo the UA dialog box: no border, no padding, the whole viewport. */
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: var(--space-6);
+  border: 0;
+  background: transparent;
+  cursor: zoom-out;
+}
+
+.lightbox[open] {
+  display: grid;
+  place-items: center;
+}
+
+.lightbox::backdrop {
+  /* Not a scheme token: the viewer is dark in both schemes, the way
+     every photo viewer is, so the picture is what stands out. */
+  background: rgb(0 0 0 / 0.9);
+}
+
+.lightbox__image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.lightbox__close {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.12);
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.lightbox__close:hover,
+.lightbox__close:focus-visible {
+  background: rgb(255 255 255 / 0.24);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox[open],
+  .lightbox[open]::backdrop {
+    animation: lightbox-in 150ms ease-out;
+  }
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+  }
+}
